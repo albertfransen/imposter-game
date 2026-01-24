@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Imposter Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 .emoji {
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 15px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+        }
+
+        .setup-screen, .transition-screen, .reveal-screen {
+            display: none;
+        }
+
+        .setup-screen.active, .transition-screen.active, .reveal-screen.active {
+            display: block;
+        }
+
+        .input-group {
+            margin: 18px 0;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            -webkit-appearance: none;
+            appearance: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: #fafafa;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 35px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+            touch-action: manipulation;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            .input-group {
+                margin: 15px 0;
+            }
+
+            label {
+                font-size: 14px;
+            }
+
+            input[type="number"], select {
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            button {
+                padding: 14px 30px;
+                font-size: 16px;
+            }
+        }
+
+        .transition-screen {
+            background: #1a1a1a;
+            color: white;
+            padding: 60px 30px;
+            border-radius: 20px;
+            cursor: pointer;
+            min-height: 300px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .transition-screen.active {
+            display: flex !important;
+        }
+
+        .transition-screen h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .transition-screen p:last-child {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .reveal-screen {
+            padding: 50px 30px;
+        }
+
+        .word-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 30px 0;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-word;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .imposter-display {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 30px 0;
+            animation: shake 0.5s ease-in-out, fadeIn 0.5s ease-in;
+            text-shadow: 2px 2px 8px rgba(231, 76, 60, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .player-counter {
+            color: #ccc;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .transition-screen {
+                padding: 50px 20px;
+                min-height: 250px;
+            }
+
+            .transition-screen h2 {
+                font-size: 1.3em;
+            }
+
+            .reveal-screen {
+                padding: 40px 20px;
+            }
+
+            .word-display {
+                font-size: 2em;
+                margin: 20px 0;
+                min-height: 80px;
+            }
+
+            .imposter-display {
+                font-size: 1.8em;
+                margin: 20px 0;
+            }
+
+            .player-counter {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Setup Screen -->
+        <div class="setup-screen active">
+            <h1><span class="emoji">🎭</span> Imposter Game</h1>
+            <div class="input-group">
+                <label for="categorySelect">Category:</label>
+                <select id="categorySelect">
+                    <option value="animals">Animals</option>
+                    <option value="sport">🏃 Sport</option>
+                    <option value="football">⚽ Football</option>
+                    <option value="countries">🌍 Countries</option>
+                    <option value="famous_people">🌟 Famous People</option>
+                    <option value="historical_figures">📜 Historical Figures</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="playerCount">Number of Players:</label>
+                <input type="number" id="playerCount" min="3" max="20" value="5">
+            </div>
+            <div class="input-group">
+                <label for="imposterCount">Number of Imposters:</label>
+                <input type="number" id="imposterCount" min="1" max="5" value="1">
+            </div>
+            <div class="error" id="setupError"></div>
+            <button onclick="startGame()">Start Game</button>
+        </div>
+
+        <!-- Transition Screen (dark screen between players) -->
+        <div class="transition-screen">
+            <h2>Pass to Next Player</h2>
+            <p class="player-counter" id="playerCounter"></p>
+            <p>Click to reveal your role</p>
+        </div>
+
+        <!-- Reveal Screen (shows word or imposter) -->
+        <div class="reveal-screen">
+            <h2 id="roleTitle">Your Word</h2>
+            <div id="wordDisplay" class="word-display"></div>
+            <p>Remember this and pass the device</p>
+            <button onclick="nextPlayer()">Next Player</button>
+        </div>
+    </div>
+
+    <script>
+        // Word lists by category
+        const categories = {
+            animals: [
+                'Lion', 'Elephant', 'Giraffe', 'Penguin', 'Dolphin',
+                'Kangaroo', 'Tiger', 'Zebra', 'Monkey', 'Panda',
+                'Koala', 'Eagle', 'Shark', 'Octopus', 'Bear',
+                'Wolf', 'Fox', 'Rabbit', 'Owl', 'Snake',
+                'Crocodile', 'Turtle', 'Butterfly', 'Parrot', 'Flamingo'
+            ],
+            sport: [
+                'Usain Bolt', 'Roger Federer', 'Rafael Nadal', 'Novak Djokovic', 'Serena Williams',
+                'Michael Phelps', 'Max Verstappen', 'Lewis Hamilton', 'Tiger Woods', 'Muhammad Ali',
+                'Michael Jordan', 'Pelé', 'Michael Schumacher', 'Ayrton Senna', 'Valentino Rossi',
+                'Eddy Merckx', 'Tadej Pogačar', 'Mathieu van der Poel', 'Marianne Vos', 'Epke Zonderland',
+                'Ranomi Kromowidjojo', 'Sven Kramer', 'Ireen Wüst', 'Inge de Bruijn', 'Pieter van den Hoogenband',
+                'Ellen van Langen', 'Dafne Schippers', 'Femke Bol', 'Tom Dumoulin', 'Annemiek van Vleuten',
+                'Tour de France', 'Wimbledon', 'Olympische Spelen', 'Formule 1', 'Elfstedentocht',
+                'Roland Garros', 'Giro d\'Italia', 'Monaco Grand Prix', 'World Darts Championship', 'Six Nations Rugby',
+                'Tennis', 'Wielrennen', 'Schaatsen', 'Zwemmen', 'Judo',
+                'Hockey', 'Darts', 'Snooker', 'Golf', 'Turnen'
+            ],
+            football: [
+                'Johan Cruijff', 'Marco van Basten', 'Ruud Gullit', 'Dennis Bergkamp', 'Arjen Robben',
+                'Wesley Sneijder', 'Robin van Persie', 'Virgil van Dijk', 'Frenkie de Jong', 'Memphis Depay',
+                'Lionel Messi', 'Cristiano Ronaldo', 'Zinedine Zidane', 'Ronaldinho', 'Kylian Mbappé',
+                'Erling Haaland', 'Kevin De Bruyne', 'Zlatan Ibrahimović', 'Thierry Henry', 'Andrea Pirlo',
+                'Ajax', 'Feyenoord', 'PSV', 'Real Madrid', 'Barcelona',
+                'Manchester United', 'Liverpool', 'Bayern München', 'Juventus', 'Paris Saint-Germain',
+                'Pep Guardiola', 'José Mourinho', 'Louis van Gaal', 'Erik ten Hag', 'Arne Slot',
+                'Jürgen Klopp', 'Sir Alex Ferguson', 'Carlo Ancelotti', 'De Kuip', 'Johan Cruijff Arena',
+                'Camp Nou', 'Old Trafford', 'Anfield', 'Wembley', 'San Siro',
+                'Champions League', 'Eredivisie', 'Premier League', 'WK Voetbal', 'EK Voetbal'
+            ],
+            countries: [
+                'Nederland', 'België', 'Duitsland', 'Frankrijk', 'Spanje',
+                'Portugal', 'Italië', 'Griekenland', 'Verenigd Koninkrijk', 'Ierland',
+                'Zweden', 'Noorwegen', 'Denemarken', 'Finland', 'Polen',
+                'Tsjechië', 'Oostenrijk', 'Zwitserland', 'Kroatië', 'Hongarije',
+                'Turkije', 'Rusland', 'Oekraïne', 'Verenigde Staten', 'Canada',
+                'Mexico', 'Brazilië', 'Argentinië', 'Colombia', 'Peru',
+                'Chili', 'Cuba', 'China', 'Japan', 'Zuid-Korea',
+                'India', 'Thailand', 'Vietnam', 'Indonesië', 'Australië',
+                'Nieuw-Zeeland', 'Egypte', 'Marokko', 'Zuid-Afrika', 'Nigeria',
+                'Kenia', 'Israël', 'Saudi-Arabië', 'Iran', 'Verenigde Arabische Emiraten'
+            ],
+            famous_people: [
+                'Beyoncé', 'Taylor Swift', 'Ed Sheeran', 'Adele', 'Rihanna',
+                'Lady Gaga', 'Elton John', 'Madonna', 'Tiësto', 'Armin van Buuren',
+                'Martin Garrix', 'André Rieu', 'Leonardo DiCaprio', 'Brad Pitt', 'Tom Hanks',
+                'Tom Cruise', 'Will Smith', 'Keanu Reeves', 'Johnny Depp', 'Margot Robbie',
+                'Scarlett Johansson', 'Angelina Jolie', 'Zendaya', 'Timothée Chalamet', 'Carice van Houten',
+                'Famke Janssen', 'Rutger Hauer', 'Elon Musk', 'Jeff Bezos', 'Mark Zuckerberg',
+                'Bill Gates', 'Steve Jobs', 'Barack Obama', 'Donald Trump', 'Vladimir Putin',
+                'Angela Merkel', 'Emmanuel Macron', 'Pope Francis', 'Greta Thunberg', 'Volodymyr Zelensky',
+                'Willem-Alexander', 'Máxima', 'Mark Rutte', 'Geert Wilders', 'Arjen Lubach',
+                'Matthijs van Nieuwkerk', 'Linda de Mol', 'John de Mol', 'Doutzen Kroes', 'Marco Borsato'
+            ],
+            historical_figures: [
+                'Willem van Oranje', 'Michiel de Ruyter', 'Rembrandt van Rijn', 'Vincent van Gogh', 'Anne Frank',
+                'Erasmus', 'Spinoza', 'Johan van Oldenbarnevelt', 'Piet Hein', 'Wilhelmina',
+                'Napoleon Bonaparte', 'Julius Caesar', 'Alexander de Grote', 'Cleopatra', 'Winston Churchill',
+                'Abraham Lincoln', 'John F. Kennedy', 'Adolf Hitler', 'Joseph Stalin', 'Queen Elizabeth II',
+                'Albert Einstein', 'Isaac Newton', 'Galileo Galilei', 'Charles Darwin', 'Marie Curie',
+                'Nikola Tesla', 'Leonardo da Vinci', 'Stephen Hawking', 'Alan Turing', 'Archimedes',
+                'Socrates', 'Plato', 'Aristoteles', 'Karl Marx', 'Sigmund Freud',
+                'Michelangelo', 'Pablo Picasso', 'William Shakespeare', 'Mozart', 'Beethoven',
+                'Christoffel Columbus', 'Marco Polo', 'Neil Armstrong', 'Mahatma Gandhi', 'Martin Luther King Jr.',
+                'Nelson Mandela', 'Jeanne d\'Arc', 'Genghis Khan', 'Che Guevara', 'Mother Teresa'
+            ]
+        };
+
+        let currentPlayer = 0;
+        let totalPlayers = 0;
+        let imposterCount = 0;
+        let imposters = [];
+        let selectedWord = '';
+
+        function startGame() {
+            const playerInput = document.getElementById('playerCount');
+            const imposterInput = document.getElementById('imposterCount');
+            const categoryInput = document.getElementById('categorySelect');
+            const errorDiv = document.getElementById('setupError');
+
+            totalPlayers = parseInt(playerInput.value);
+            imposterCount = parseInt(imposterInput.value);
+            const selectedCategory = categoryInput.value;
+
+            // Validation
+            errorDiv.textContent = '';
+
+            if (totalPlayers < 3) {
+                errorDiv.textContent = 'Need at least 3 players!';
+                return;
+            }
+
+            if (imposterCount >= totalPlayers) {
+                errorDiv.textContent = 'Imposters must be less than total players!';
+                return;
+            }
+
+            if (imposterCount < 1) {
+                errorDiv.textContent = 'Need at least 1 imposter!';
+                return;
+            }
+
+            // Select random word from chosen category
+            const words = categories[selectedCategory];
+            selectedWord = words[Math.floor(Math.random() * words.length)];
+
+            // Randomly select imposters
+            imposters = [];
+            while (imposters.length < imposterCount) {
+                const randomPlayer = Math.floor(Math.random() * totalPlayers);
+                if (!imposters.includes(randomPlayer)) {
+                    imposters.push(randomPlayer);
+                }
+            }
+
+            currentPlayer = 0;
+            showTransitionScreen();
+        }
+
+        function showTransitionScreen() {
+            document.querySelector('.setup-screen').classList.remove('active');
+            document.querySelector('.reveal-screen').classList.remove('active');
+            document.querySelector('.transition-screen').classList.add('active');
+
+            document.getElementById('playerCounter').textContent = `Player ${currentPlayer + 1} of ${totalPlayers}`;
+
+            // Add click listener to entire container
+            document.querySelector('.transition-screen').onclick = showRevealScreen;
+        }
+
+        function showRevealScreen() {
+            document.querySelector('.transition-screen').classList.remove('active');
+            document.querySelector('.reveal-screen').classList.add('active');
+
+            // Remove click listener from transition screen
+            document.querySelector('.transition-screen').onclick = null;
+
+            const isImposter = imposters.includes(currentPlayer);
+            const roleTitle = document.getElementById('roleTitle');
+            const wordDisplay = document.getElementById('wordDisplay');
+
+            if (isImposter) {
+                roleTitle.textContent = 'You are the';
+                wordDisplay.textContent = 'IMPOSTER';
+                wordDisplay.className = 'imposter-display';
+            } else {
+                roleTitle.textContent = 'Your Word';
+                wordDisplay.textContent = selectedWord;
+                wordDisplay.className = 'word-display';
+            }
+        }
+
+        function nextPlayer() {
+            currentPlayer++;
+
+            if (currentPlayer >= totalPlayers) {
+                // Game is ready - all players have seen their roles
+                alert('All players have seen their roles. Let the game begin!');
+                resetGame();
+            } else {
+                showTransitionScreen();
+            }
+        }
+
+        function resetGame() {
+            currentPlayer = 0;
+            document.querySelector('.reveal-screen').classList.remove('active');
+            document.querySelector('.setup-screen').classList.add('active');
+        }
+    </script>
+</body>
+</html>
