@@ -34,35 +34,12 @@
             max-width: 500px;
             width: 100%;
             text-align: center;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         h1 {
             color: #333;
             margin-bottom: 25px;
             font-size: 1.8em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 .emoji {
-            display: inline-block;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
         }
 
         @media (max-width: 480px) {
@@ -77,11 +54,11 @@
             }
         }
 
-        .setup-screen, .transition-screen, .reveal-screen {
+        .setup-screen, .transition-screen, .reveal-screen, .game-screen, .instructions-screen, .names-screen, .voting-screen, .scoreboard-screen {
             display: none;
         }
 
-        .setup-screen.active, .transition-screen.active, .reveal-screen.active {
+        .setup-screen.active, .transition-screen.active, .reveal-screen.active, .game-screen.active, .instructions-screen.active, .names-screen.active, .voting-screen.active, .scoreboard-screen.active {
             display: block;
         }
 
@@ -98,7 +75,7 @@
             font-size: 15px;
         }
 
-        input[type="number"], select {
+        input[type="number"], select, input[type="text"] {
             width: 100%;
             padding: 14px;
             border: 2px solid #e0e0e0;
@@ -110,7 +87,7 @@
             background: #fafafa;
         }
 
-        input[type="number"]:focus, select:focus {
+        input[type="number"]:focus, select:focus, input[type="text"]:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -139,31 +116,30 @@
             touch-action: manipulation;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             font-weight: 600;
-            position: relative;
-            overflow: hidden;
-        }
-
-        button::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        button:active::before {
-            width: 300px;
-            height: 300px;
         }
 
         button:active {
             transform: scale(0.97);
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        button.secondary {
+            background: #6c757d;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+            margin-top: 10px;
+        }
+
+        button.danger {
+            background: #e74c3c;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        button.small {
+            padding: 10px 20px;
+            font-size: 14px;
+            max-width: 150px;
+            display: inline-block;
+            margin: 5px;
         }
 
         @media (max-width: 480px) {
@@ -175,7 +151,7 @@
                 font-size: 14px;
             }
 
-            input[type="number"], select {
+            input[type="number"], select, input[type="text"] {
                 padding: 12px;
                 font-size: 16px;
             }
@@ -208,15 +184,6 @@
             margin-bottom: 20px;
         }
 
-        .transition-screen p:last-child {
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
         .reveal-screen {
             padding: 50px 30px;
         }
@@ -236,7 +203,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: fadeIn 0.5s ease-in;
         }
 
         .imposter-display {
@@ -244,19 +210,6 @@
             font-weight: bold;
             color: #e74c3c;
             margin: 30px 0;
-            animation: shake 0.5s ease-in-out, fadeIn 0.5s ease-in;
-            text-shadow: 2px 2px 8px rgba(231, 76, 60, 0.3);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
         }
 
         .player-counter {
@@ -269,6 +222,169 @@
             color: #e74c3c;
             font-size: 14px;
             margin-top: 10px;
+        }
+
+        .game-screen {
+            padding: 30px 20px;
+        }
+
+        .timer-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .timer-display.warning {
+            color: #f39c12;
+        }
+
+        .timer-display.danger {
+            color: #e74c3c;
+        }
+
+        .game-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .game-info p {
+            margin: 8px 0;
+            color: #555;
+        }
+
+        .instructions-screen {
+            text-align: left;
+            padding: 20px;
+        }
+
+        .instructions-screen h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .instructions-screen ol, .instructions-screen ul {
+            margin-left: 20px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .instructions-screen li {
+            margin: 10px 0;
+        }
+
+        .custom-words-container {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .custom-words-container.active {
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            background: #fafafa;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .round-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .player-name-input {
+            margin: 10px 0;
+        }
+
+        .player-name-input input {
+            width: 100%;
+        }
+
+        .voting-container {
+            margin: 20px 0;
+        }
+
+        .player-vote-button {
+            display: block;
+            width: 100%;
+            margin: 8px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .player-vote-button:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .player-vote-button.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .scoreboard-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+
+        .scoreboard-table th, .scoreboard-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .scoreboard-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .scoreboard-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .winner-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #28a745;
+            color: white;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-left: 5px;
         }
 
         @media (max-width: 480px) {
@@ -299,25 +415,75 @@
             .player-counter {
                 font-size: 14px;
             }
+
+            .timer-display {
+                font-size: 2em;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Instructions Screen -->
+        <div class="instructions-screen" id="instructionsScreen">
+            <h1>🎭 How to Play</h1>
+            <h2>Game Overview</h2>
+            <p>Imposter is a social deduction game where players try to find the imposter(s) among them!</p>
+
+            <h2>Setup</h2>
+            <ol>
+                <li>Choose a category (or use custom words)</li>
+                <li>Set the number of players (3-20)</li>
+                <li>Set the number of imposters (1-5)</li>
+                <li>Optional: Set a game timer</li>
+            </ol>
+
+            <h2>How to Play</h2>
+            <ol>
+                <li>Pass the device to each player</li>
+                <li>Each player clicks to see their role</li>
+                <li>Regular players see a secret word</li>
+                <li>Imposters see "IMPOSTER"</li>
+                <li>Players take turns describing the word without saying it</li>
+                <li>Imposters try to blend in without knowing the word</li>
+                <li>After discussion, vote on who you think the imposter is!</li>
+            </ol>
+
+            <h2>Winning</h2>
+            <ul>
+                <li><strong>Regular Players Win:</strong> If they correctly identify all imposters</li>
+                <li><strong>Imposters Win:</strong> If they avoid detection or regular players vote wrong</li>
+            </ul>
+
+            <button onclick="closeInstructions()">Got It!</button>
+        </div>
+
         <!-- Setup Screen -->
         <div class="setup-screen active">
-            <h1><span class="emoji">🎭</span> Imposter Game</h1>
+            <h1>🎭 Imposter Game</h1>
+            <button class="small secondary" onclick="showInstructions()">How to Play</button>
+
             <div class="input-group">
                 <label for="categorySelect">Category:</label>
-                <select id="categorySelect">
-                    <option value="animals">Animals</option>
+                <select id="categorySelect" onchange="toggleCustomWords()">
+                    <option value="random">🎲 Random Category</option>
+                    <option value="animals">🦁 Animals</option>
                     <option value="sport">🏃 Sport</option>
                     <option value="football">⚽ Football</option>
                     <option value="countries">🌍 Countries</option>
                     <option value="famous_people">🌟 Famous People</option>
                     <option value="historical_figures">📜 Historical Figures</option>
+                    <option value="kabk_teachers">🎨 KABK Teachers</option>
+                    <option value="custom">✏️ Custom Words</option>
                 </select>
             </div>
+
+            <div class="custom-words-container" id="customWordsContainer">
+                <label for="customWords">Enter your words (one per line):</label>
+                <textarea id="customWords" placeholder="Pizza&#10;Burger&#10;Sushi&#10;Taco"></textarea>
+                <div class="help-text">Enter at least 5 words, one per line</div>
+            </div>
+
             <div class="input-group">
                 <label for="playerCount">Number of Players:</label>
                 <input type="number" id="playerCount" min="3" max="20" value="5">
@@ -326,8 +492,25 @@
                 <label for="imposterCount">Number of Imposters:</label>
                 <input type="number" id="imposterCount" min="1" max="5" value="1">
             </div>
+            <div class="input-group">
+                <label for="timerMinutes">Game Timer (minutes, 0 = no timer):</label>
+                <input type="number" id="timerMinutes" min="0" max="30" value="5">
+            </div>
+            <div class="input-group">
+                <label for="roundCount">Number of Rounds:</label>
+                <input type="number" id="roundCount" min="1" max="10" value="1">
+            </div>
             <div class="error" id="setupError"></div>
-            <button onclick="startGame()">Start Game</button>
+            <button onclick="showNamesScreen()">Next: Enter Names</button>
+        </div>
+
+        <!-- Names Screen -->
+        <div class="names-screen">
+            <h1>Enter Player Names</h1>
+            <div id="playerNamesContainer"></div>
+            <div class="error" id="namesError"></div>
+            <button onclick="startGameWithNames()">Start Game</button>
+            <button class="secondary small" onclick="backToSetup()">Back</button>
         </div>
 
         <!-- Transition Screen (dark screen between players) -->
@@ -343,6 +526,50 @@
             <div id="wordDisplay" class="word-display"></div>
             <p>Remember this and pass the device</p>
             <button onclick="nextPlayer()">Next Player</button>
+        </div>
+
+        <!-- Game Screen (timer and controls during game) -->
+        <div class="game-screen">
+            <div class="round-info" id="roundInfo">
+                Round 1 of 1
+            </div>
+            <h2>Game in Progress</h2>
+            <div class="timer-display" id="timerDisplay">5:00</div>
+            <div class="game-info">
+                <p><strong>Category:</strong> <span id="gameCategory"></span></p>
+                <p><strong>Players:</strong> <span id="gamePlayers"></span></p>
+                <p><strong>Imposters:</strong> <span id="gameImposters"></span></p>
+            </div>
+            <button onclick="showVotingScreen()">Vote for Imposters</button>
+            <button class="secondary" onclick="revealAllWords()">Reveal All Words</button>
+            <button class="danger small" onclick="confirmEndGame()">End Game</button>
+        </div>
+
+        <!-- Voting Screen -->
+        <div class="voting-screen">
+            <h1>Vote for the Imposters</h1>
+            <p>Select <span id="voteImposterCount">1</span> player(s) you think are imposters</p>
+            <div class="voting-container" id="votingContainer"></div>
+            <div class="error" id="votingError"></div>
+            <button onclick="submitVotes()">Submit Votes</button>
+            <button class="secondary small" onclick="backToGame()">Back to Game</button>
+        </div>
+
+        <!-- Scoreboard Screen -->
+        <div class="scoreboard-screen">
+            <h1>Round Results</h1>
+            <div id="roundResultMessage"></div>
+            <table class="scoreboard-table">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Score</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody id="scoreboardBody"></tbody>
+            </table>
+            <div id="nextRoundButtons"></div>
         </div>
     </div>
 
@@ -362,59 +589,38 @@
                 'Michael Jordan', 'Pelé', 'Michael Schumacher', 'Ayrton Senna', 'Valentino Rossi',
                 'Eddy Merckx', 'Tadej Pogačar', 'Mathieu van der Poel', 'Marianne Vos', 'Epke Zonderland',
                 'Ranomi Kromowidjojo', 'Sven Kramer', 'Ireen Wüst', 'Inge de Bruijn', 'Pieter van den Hoogenband',
-                'Ellen van Langen', 'Dafne Schippers', 'Femke Bol', 'Tom Dumoulin', 'Annemiek van Vleuten',
-                'Tour de France', 'Wimbledon', 'Olympische Spelen', 'Formule 1', 'Elfstedentocht',
-                'Roland Garros', 'Giro d\'Italia', 'Monaco Grand Prix', 'World Darts Championship', 'Six Nations Rugby',
-                'Tennis', 'Wielrennen', 'Schaatsen', 'Zwemmen', 'Judo',
-                'Hockey', 'Darts', 'Snooker', 'Golf', 'Turnen'
+                'Ellen van Langen', 'Dafne Schippers', 'Femke Bol', 'Tom Dumoulin', 'Annemiek van Vleuten'
             ],
             football: [
                 'Johan Cruijff', 'Marco van Basten', 'Ruud Gullit', 'Dennis Bergkamp', 'Arjen Robben',
                 'Wesley Sneijder', 'Robin van Persie', 'Virgil van Dijk', 'Frenkie de Jong', 'Memphis Depay',
                 'Lionel Messi', 'Cristiano Ronaldo', 'Zinedine Zidane', 'Ronaldinho', 'Kylian Mbappé',
-                'Erling Haaland', 'Kevin De Bruyne', 'Zlatan Ibrahimović', 'Thierry Henry', 'Andrea Pirlo',
-                'Ajax', 'Feyenoord', 'PSV', 'Real Madrid', 'Barcelona',
-                'Manchester United', 'Liverpool', 'Bayern München', 'Juventus', 'Paris Saint-Germain',
-                'Pep Guardiola', 'José Mourinho', 'Louis van Gaal', 'Erik ten Hag', 'Arne Slot',
-                'Jürgen Klopp', 'Sir Alex Ferguson', 'Carlo Ancelotti', 'De Kuip', 'Johan Cruijff Arena',
-                'Camp Nou', 'Old Trafford', 'Anfield', 'Wembley', 'San Siro',
-                'Champions League', 'Eredivisie', 'Premier League', 'WK Voetbal', 'EK Voetbal'
+                'Erling Haaland', 'Kevin De Bruyne', 'Zlatan Ibrahimović', 'Thierry Henry', 'Andrea Pirlo'
             ],
             countries: [
                 'Nederland', 'België', 'Duitsland', 'Frankrijk', 'Spanje',
                 'Portugal', 'Italië', 'Griekenland', 'Verenigd Koninkrijk', 'Ierland',
                 'Zweden', 'Noorwegen', 'Denemarken', 'Finland', 'Polen',
-                'Tsjechië', 'Oostenrijk', 'Zwitserland', 'Kroatië', 'Hongarije',
-                'Turkije', 'Rusland', 'Oekraïne', 'Verenigde Staten', 'Canada',
-                'Mexico', 'Brazilië', 'Argentinië', 'Colombia', 'Peru',
-                'Chili', 'Cuba', 'China', 'Japan', 'Zuid-Korea',
-                'India', 'Thailand', 'Vietnam', 'Indonesië', 'Australië',
-                'Nieuw-Zeeland', 'Egypte', 'Marokko', 'Zuid-Afrika', 'Nigeria',
-                'Kenia', 'Israël', 'Saudi-Arabië', 'Iran', 'Verenigde Arabische Emiraten'
+                'Tsjechië', 'Oostenrijk', 'Zwitserland', 'Kroatië', 'Hongarije'
             ],
             famous_people: [
                 'Beyoncé', 'Taylor Swift', 'Ed Sheeran', 'Adele', 'Rihanna',
                 'Lady Gaga', 'Elton John', 'Madonna', 'Tiësto', 'Armin van Buuren',
                 'Martin Garrix', 'André Rieu', 'Leonardo DiCaprio', 'Brad Pitt', 'Tom Hanks',
-                'Tom Cruise', 'Will Smith', 'Keanu Reeves', 'Johnny Depp', 'Margot Robbie',
-                'Scarlett Johansson', 'Angelina Jolie', 'Zendaya', 'Timothée Chalamet', 'Carice van Houten',
-                'Famke Janssen', 'Rutger Hauer', 'Elon Musk', 'Jeff Bezos', 'Mark Zuckerberg',
-                'Bill Gates', 'Steve Jobs', 'Barack Obama', 'Donald Trump', 'Vladimir Putin',
-                'Angela Merkel', 'Emmanuel Macron', 'Pope Francis', 'Greta Thunberg', 'Volodymyr Zelensky',
-                'Willem-Alexander', 'Máxima', 'Mark Rutte', 'Geert Wilders', 'Arjen Lubach',
-                'Matthijs van Nieuwkerk', 'Linda de Mol', 'John de Mol', 'Doutzen Kroes', 'Marco Borsato'
+                'Tom Cruise', 'Will Smith', 'Keanu Reeves', 'Johnny Depp', 'Margot Robbie'
             ],
             historical_figures: [
                 'Willem van Oranje', 'Michiel de Ruyter', 'Rembrandt van Rijn', 'Vincent van Gogh', 'Anne Frank',
                 'Erasmus', 'Spinoza', 'Johan van Oldenbarnevelt', 'Piet Hein', 'Wilhelmina',
                 'Napoleon Bonaparte', 'Julius Caesar', 'Alexander de Grote', 'Cleopatra', 'Winston Churchill',
-                'Abraham Lincoln', 'John F. Kennedy', 'Adolf Hitler', 'Joseph Stalin', 'Queen Elizabeth II',
-                'Albert Einstein', 'Isaac Newton', 'Galileo Galilei', 'Charles Darwin', 'Marie Curie',
-                'Nikola Tesla', 'Leonardo da Vinci', 'Stephen Hawking', 'Alan Turing', 'Archimedes',
-                'Socrates', 'Plato', 'Aristoteles', 'Karl Marx', 'Sigmund Freud',
-                'Michelangelo', 'Pablo Picasso', 'William Shakespeare', 'Mozart', 'Beethoven',
-                'Christoffel Columbus', 'Marco Polo', 'Neil Armstrong', 'Mahatma Gandhi', 'Martin Luther King Jr.',
-                'Nelson Mandela', 'Jeanne d\'Arc', 'Genghis Khan', 'Che Guevara', 'Mother Teresa'
+                'Abraham Lincoln', 'John F. Kennedy', 'Albert Einstein', 'Isaac Newton', 'Galileo Galilei'
+            ],
+            kabk_teachers: [
+                'Lauren Alexander', 'Chantal Hendriksen', 'Ingrid Grünwald', 'Marit van der Meulen', 'Rob van den Nieuwenhuijzen',
+                'Hannes Bernard', 'Katrin Korfmann', 'Thomas Buxó', 'Phil Baber', 'Bart de Baets',
+                'Frank E. Blokland', 'Guido de Boer', 'Simnikiwe Buhlungu', 'Louis Braddock Clarke', 'Maarten Cornel',
+                'Quentin Creuzet', 'Edward Dżułaj', 'Francois Girard-Meunier', 'Pjotr de Jong', 'Pascal de Man',
+                'Richard Niessen', 'Marthe Prins', 'Michiel Schuurman', 'Peter Verheul', 'Riet Wijnen'
             ]
         };
 
@@ -423,16 +629,61 @@
         let imposterCount = 0;
         let imposters = [];
         let selectedWord = '';
+        let selectedCategory = '';
+        let timerInterval = null;
+        let timeRemaining = 0;
+        let currentRound = 1;
+        let totalRounds = 1;
+        let customWordsList = [];
+        let displayCategoryName = '';
+        let playerNames = [];
+        let playerScores = [];
+        let selectedVotes = [];
+        let timerMinutesValue = 5;
 
-        function startGame() {
+        const categoryNames = {
+            'animals': '🦁 Animals',
+            'sport': '🏃 Sport',
+            'football': '⚽ Football',
+            'countries': '🌍 Countries',
+            'famous_people': '🌟 Famous People',
+            'historical_figures': '📜 Historical Figures',
+            'kabk_teachers': '🎨 KABK Teachers'
+        };
+
+        function toggleCustomWords() {
+            const category = document.getElementById('categorySelect').value;
+            const container = document.getElementById('customWordsContainer');
+            if (category === 'custom') {
+                container.classList.add('active');
+            } else {
+                container.classList.remove('active');
+            }
+        }
+
+        function showInstructions() {
+            document.querySelector('.setup-screen').classList.remove('active');
+            document.getElementById('instructionsScreen').classList.add('active');
+        }
+
+        function closeInstructions() {
+            document.getElementById('instructionsScreen').classList.remove('active');
+            document.querySelector('.setup-screen').classList.add('active');
+        }
+
+        function showNamesScreen() {
             const playerInput = document.getElementById('playerCount');
             const imposterInput = document.getElementById('imposterCount');
             const categoryInput = document.getElementById('categorySelect');
+            const timerInput = document.getElementById('timerMinutes');
+            const roundInput = document.getElementById('roundCount');
             const errorDiv = document.getElementById('setupError');
 
             totalPlayers = parseInt(playerInput.value);
             imposterCount = parseInt(imposterInput.value);
-            const selectedCategory = categoryInput.value;
+            selectedCategory = categoryInput.value;
+            timerMinutesValue = parseInt(timerInput.value);
+            totalRounds = parseInt(roundInput.value);
 
             // Validation
             errorDiv.textContent = '';
@@ -452,29 +703,119 @@
                 return;
             }
 
-            // Select random word from chosen category
-            const words = categories[selectedCategory];
-            selectedWord = words[Math.floor(Math.random() * words.length)];
+            // Handle custom words
+            if (selectedCategory === 'custom') {
+                const customWordsText = document.getElementById('customWords').value.trim();
+                customWordsList = customWordsText.split('\n').filter(word => word.trim().length > 0);
 
-            // Randomly select imposters
-            imposters = [];
-            while (imposters.length < imposterCount) {
-                const randomPlayer = Math.floor(Math.random() * totalPlayers);
-                if (!imposters.includes(randomPlayer)) {
-                    imposters.push(randomPlayer);
+                if (customWordsList.length < 5) {
+                    errorDiv.textContent = 'Please enter at least 5 custom words!';
+                    return;
+                }
+                displayCategoryName = '✏️ Custom Words';
+            } else {
+                customWordsList = [];
+
+                if (selectedCategory === 'random') {
+                    const categoryKeys = Object.keys(categories);
+                    selectedCategory = categoryKeys[Math.floor(Math.random() * categoryKeys.length)];
+                    displayCategoryName = categoryNames[selectedCategory];
+                } else {
+                    displayCategoryName = categoryNames[selectedCategory];
                 }
             }
 
+            // Generate name input fields
+            const container = document.getElementById('playerNamesContainer');
+            container.innerHTML = '';
+
+            for (let i = 0; i < totalPlayers; i++) {
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'player-name-input';
+                inputGroup.innerHTML = `
+                    <label for="playerName${i}">Player ${i + 1} Name:</label>
+                    <input type="text" id="playerName${i}" placeholder="Enter name" value="Player ${i + 1}">
+                `;
+                container.appendChild(inputGroup);
+            }
+
+            // Initialize scores array
+            playerScores = new Array(totalPlayers).fill(0);
+
+            document.querySelector('.setup-screen').classList.remove('active');
+            document.querySelector('.names-screen').classList.add('active');
+        }
+
+        function backToSetup() {
+            document.querySelector('.names-screen').classList.remove('active');
+            document.querySelector('.setup-screen').classList.add('active');
+        }
+
+        function startGameWithNames() {
+            const errorDiv = document.getElementById('namesError');
+            errorDiv.textContent = '';
+
+            // Collect player names
+            playerNames = [];
+            for (let i = 0; i < totalPlayers; i++) {
+                const name = document.getElementById(`playerName${i}`).value.trim();
+                if (name === '') {
+                    errorDiv.textContent = `Please enter a name for Player ${i + 1}`;
+                    return;
+                }
+                playerNames.push(name);
+            }
+
+            currentRound = 1;
+            startRound();
+        }
+
+        function startRound() {
+            // Select random word from chosen category
+            let words;
+            if (customWordsList.length > 0) {
+                words = customWordsList;
+            } else {
+                words = categories[selectedCategory];
+            }
+            selectedWord = words[Math.floor(Math.random() * words.length)];
+
+            // Randomly select imposters using Fisher-Yates shuffle for better randomization
+            imposters = [];
+            const playerIndices = Array.from({length: totalPlayers}, (_, i) => i);
+
+            // Shuffle the array
+            for (let i = playerIndices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [playerIndices[i], playerIndices[j]] = [playerIndices[j], playerIndices[i]];
+            }
+
+            // Take the first imposterCount players from shuffled array
+            imposters = playerIndices.slice(0, imposterCount);
+
+            // Set up timer
+            if (timerMinutesValue > 0) {
+                timeRemaining = timerMinutesValue * 60;
+            } else {
+                timeRemaining = 0;
+            }
+
             currentPlayer = 0;
+            selectedVotes = [];
             showTransitionScreen();
         }
 
         function showTransitionScreen() {
             document.querySelector('.setup-screen').classList.remove('active');
+            document.querySelector('.names-screen').classList.remove('active');
             document.querySelector('.reveal-screen').classList.remove('active');
+            document.querySelector('.game-screen').classList.remove('active');
+            document.querySelector('.voting-screen').classList.remove('active');
+            document.querySelector('.scoreboard-screen').classList.remove('active');
             document.querySelector('.transition-screen').classList.add('active');
 
-            document.getElementById('playerCounter').textContent = `Player ${currentPlayer + 1} of ${totalPlayers}`;
+            const playerName = playerNames[currentPlayer] || `Player ${currentPlayer + 1}`;
+            document.getElementById('playerCounter').textContent = `${playerName} (${currentPlayer + 1} of ${totalPlayers})`;
 
             // Add click listener to entire container
             document.querySelector('.transition-screen').onclick = showRevealScreen;
@@ -506,17 +847,268 @@
             currentPlayer++;
 
             if (currentPlayer >= totalPlayers) {
-                // Game is ready - all players have seen their roles
-                alert('All players have seen their roles. Let the game begin!');
-                resetGame();
+                // All players have seen their roles - start game
+                startGameTimer();
             } else {
                 showTransitionScreen();
             }
         }
 
-        function resetGame() {
-            currentPlayer = 0;
+        function startGameTimer() {
             document.querySelector('.reveal-screen').classList.remove('active');
+            document.querySelector('.game-screen').classList.add('active');
+
+            // Update game info
+            document.getElementById('gameCategory').textContent = displayCategoryName;
+            document.getElementById('gamePlayers').textContent = totalPlayers;
+            document.getElementById('gameImposters').textContent = imposterCount;
+            document.getElementById('roundInfo').textContent = `Round ${currentRound} of ${totalRounds}`;
+
+            if (timeRemaining > 0) {
+                updateTimerDisplay();
+                timerInterval = setInterval(() => {
+                    timeRemaining--;
+                    updateTimerDisplay();
+
+                    if (timeRemaining <= 0) {
+                        clearInterval(timerInterval);
+                        alert('Time is up! Discuss and vote for the imposter(s)!');
+                    }
+                }, 1000);
+            } else {
+                document.getElementById('timerDisplay').textContent = 'No Timer';
+            }
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            const timerElement = document.getElementById('timerDisplay');
+            timerElement.textContent = display;
+
+            // Change color based on time remaining
+            timerElement.className = 'timer-display';
+            if (timeRemaining <= 30) {
+                timerElement.classList.add('danger');
+            } else if (timeRemaining <= 60) {
+                timerElement.classList.add('warning');
+            }
+        }
+
+        function showVotingScreen() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+
+            document.querySelector('.game-screen').classList.remove('active');
+            document.querySelector('.voting-screen').classList.add('active');
+
+            document.getElementById('voteImposterCount').textContent = imposterCount;
+
+            // Create voting buttons
+            const container = document.getElementById('votingContainer');
+            container.innerHTML = '';
+
+            for (let i = 0; i < totalPlayers; i++) {
+                const button = document.createElement('button');
+                button.className = 'player-vote-button';
+                button.textContent = playerNames[i];
+                button.onclick = () => toggleVote(i, button);
+                container.appendChild(button);
+            }
+        }
+
+        function toggleVote(playerIndex, button) {
+            const index = selectedVotes.indexOf(playerIndex);
+            if (index > -1) {
+                selectedVotes.splice(index, 1);
+                button.classList.remove('selected');
+            } else {
+                if (selectedVotes.length < imposterCount) {
+                    selectedVotes.push(playerIndex);
+                    button.classList.add('selected');
+                } else {
+                    document.getElementById('votingError').textContent = `You can only select ${imposterCount} player(s)`;
+                    setTimeout(() => {
+                        document.getElementById('votingError').textContent = '';
+                    }, 2000);
+                }
+            }
+        }
+
+        function submitVotes() {
+            const errorDiv = document.getElementById('votingError');
+
+            if (selectedVotes.length !== imposterCount) {
+                errorDiv.textContent = `Please select exactly ${imposterCount} player(s)`;
+                return;
+            }
+
+            errorDiv.textContent = '';
+
+            // Check if votes are correct
+            selectedVotes.sort((a, b) => a - b);
+            const sortedImposters = [...imposters].sort((a, b) => a - b);
+            const correct = JSON.stringify(selectedVotes) === JSON.stringify(sortedImposters);
+
+            // Award points
+            if (correct) {
+                // Regular players win - award points to all non-imposters
+                for (let i = 0; i < totalPlayers; i++) {
+                    if (!imposters.includes(i)) {
+                        playerScores[i] += 10;
+                    }
+                }
+            } else {
+                // Imposters win - award points to imposters
+                imposters.forEach(imposterIndex => {
+                    playerScores[imposterIndex] += 15;
+                });
+            }
+
+            showScoreboard(correct);
+        }
+
+        function backToGame() {
+            document.querySelector('.voting-screen').classList.remove('active');
+            document.querySelector('.game-screen').classList.add('active');
+
+            // Restart timer if there was one
+            if (timerMinutesValue > 0 && timeRemaining > 0) {
+                timerInterval = setInterval(() => {
+                    timeRemaining--;
+                    updateTimerDisplay();
+
+                    if (timeRemaining <= 0) {
+                        clearInterval(timerInterval);
+                        alert('Time is up! Discuss and vote for the imposter(s)!');
+                    }
+                }, 1000);
+            }
+        }
+
+        function showScoreboard(regularPlayersWon) {
+            document.querySelector('.voting-screen').classList.remove('active');
+            document.querySelector('.scoreboard-screen').classList.add('active');
+
+            // Show result message
+            const resultMessage = document.getElementById('roundResultMessage');
+            if (regularPlayersWon) {
+                resultMessage.innerHTML = `<h2 style="color: #28a745;">✓ Regular Players Win!</h2><p>The imposters were correctly identified!</p>`;
+            } else {
+                resultMessage.innerHTML = `<h2 style="color: #e74c3c;">✗ Imposters Win!</h2><p>The imposters avoided detection!</p>`;
+            }
+
+            // Show imposter info
+            let imposterNames = imposters.map(i => playerNames[i]).join(', ');
+            resultMessage.innerHTML += `<p><strong>The word was:</strong> ${selectedWord}</p>`;
+            resultMessage.innerHTML += `<p><strong>Imposters were:</strong> ${imposterNames}</p>`;
+
+            // Update scoreboard table
+            const tbody = document.getElementById('scoreboardBody');
+            tbody.innerHTML = '';
+
+            for (let i = 0; i < totalPlayers; i++) {
+                const row = document.createElement('tr');
+                const wasImposter = imposters.includes(i);
+                row.innerHTML = `
+                    <td>${playerNames[i]}</td>
+                    <td>${playerScores[i]}</td>
+                    <td>${wasImposter ? '😈 Imposter' : '👤 Regular'}</td>
+                `;
+                tbody.appendChild(row);
+            }
+
+            // Show next round or final results buttons
+            const buttonsDiv = document.getElementById('nextRoundButtons');
+            if (currentRound < totalRounds) {
+                buttonsDiv.innerHTML = `
+                    <button onclick="nextRound()">Next Round (${currentRound + 1}/${totalRounds})</button>
+                    <button class="danger small" onclick="confirmEndGame()">End Game</button>
+                `;
+            } else {
+                buttonsDiv.innerHTML = `
+                    <button onclick="showFinalResults()">Show Final Results</button>
+                `;
+            }
+        }
+
+        function nextRound() {
+            currentRound++;
+            startRound();
+        }
+
+        function showFinalResults() {
+            // Find winner(s)
+            const maxScore = Math.max(...playerScores);
+            const winners = [];
+            for (let i = 0; i < totalPlayers; i++) {
+                if (playerScores[i] === maxScore) {
+                    winners.push(i);
+                }
+            }
+
+            // Update scoreboard with winner badges
+            const tbody = document.getElementById('scoreboardBody');
+            tbody.innerHTML = '';
+
+            for (let i = 0; i < totalPlayers; i++) {
+                const row = document.createElement('tr');
+                const isWinner = winners.includes(i);
+                row.innerHTML = `
+                    <td>${playerNames[i]}${isWinner ? '<span class="winner-badge">🏆 WINNER</span>' : ''}</td>
+                    <td>${playerScores[i]}</td>
+                    <td>-</td>
+                `;
+                tbody.appendChild(row);
+            }
+
+            const resultMessage = document.getElementById('roundResultMessage');
+            const winnerNames = winners.map(i => playerNames[i]).join(', ');
+            resultMessage.innerHTML = `<h2 style="color: #FFD700;">🏆 Game Over!</h2><p><strong>Winner${winners.length > 1 ? 's' : ''}:</strong> ${winnerNames} with ${maxScore} points!</p>`;
+
+            const buttonsDiv = document.getElementById('nextRoundButtons');
+            buttonsDiv.innerHTML = `
+                <button onclick="resetGame()">New Game</button>
+            `;
+        }
+
+        function revealAllWords() {
+            if (!confirm('Are you sure you want to reveal all words? This will show who the imposters are!')) {
+                return;
+            }
+
+            let imposterNames = imposters.map(i => playerNames[i]).join(', ');
+            let message = `The word was: ${selectedWord}\n\nImposters were:\n${imposterNames}`;
+
+            alert(message);
+        }
+
+
+        function confirmEndGame() {
+            if (confirm('Are you sure you want to end the game and return to setup?')) {
+                resetGame();
+            }
+        }
+
+        function resetGame() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            currentPlayer = 0;
+            currentRound = 1;
+            customWordsList = [];
+            playerNames = [];
+            playerScores = [];
+            selectedVotes = [];
+            document.querySelector('.game-screen').classList.remove('active');
+            document.querySelector('.reveal-screen').classList.remove('active');
+            document.querySelector('.voting-screen').classList.remove('active');
+            document.querySelector('.scoreboard-screen').classList.remove('active');
+            document.querySelector('.names-screen').classList.remove('active');
             document.querySelector('.setup-screen').classList.add('active');
         }
     </script>
