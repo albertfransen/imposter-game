@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Question Imposter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 10px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 15px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+        }
+
+        .setup-screen, .transition-screen, .reveal-screen, .game-screen, .instructions-screen, .names-screen, .answer-screen, .results-screen {
+            display: none;
+        }
+
+        .setup-screen.active, .transition-screen.active, .reveal-screen.active, .game-screen.active, .instructions-screen.active, .names-screen.active, .answer-screen.active, .results-screen.active {
+            display: block;
+        }
+
+        .input-group {
+            margin: 18px 0;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        input[type="number"], select, input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            -webkit-appearance: none;
+            appearance: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: #fafafa;
+        }
+
+        input[type="number"]:focus, select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #f5576c;
+            box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+            background: white;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 35px;
+            background-color: #fafafa;
+        }
+
+        button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+            touch-action: manipulation;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            font-weight: 600;
+        }
+
+        button:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(245, 87, 108, 0.3);
+        }
+
+        button.secondary {
+            background: #6c757d;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+            margin-top: 10px;
+        }
+
+        button.danger {
+            background: #e74c3c;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        button.small {
+            padding: 10px 20px;
+            font-size: 14px;
+            max-width: 150px;
+            display: inline-block;
+            margin: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .input-group {
+                margin: 15px 0;
+            }
+
+            label {
+                font-size: 14px;
+            }
+
+            input[type="number"], select, input[type="text"] {
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            button {
+                padding: 14px 30px;
+                font-size: 16px;
+            }
+        }
+
+        .transition-screen {
+            background: #1a1a1a;
+            color: white;
+            padding: 60px 30px;
+            border-radius: 20px;
+            cursor: pointer;
+            min-height: 300px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .transition-screen.active {
+            display: flex !important;
+        }
+
+        .transition-screen h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .reveal-screen {
+            padding: 50px 30px;
+        }
+
+        .question-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin: 30px 0;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-word;
+            line-height: 1.4;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+        }
+
+        .imposter-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.7em;
+            margin-bottom: 10px;
+        }
+
+        .player-counter {
+            color: #ccc;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .game-screen {
+            padding: 30px 20px;
+        }
+
+        .game-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .game-info p {
+            margin: 8px 0;
+            color: #555;
+        }
+
+        .instructions-screen {
+            text-align: left;
+            padding: 20px;
+        }
+
+        .instructions-screen h2 {
+            color: #f5576c;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        .instructions-screen ol, .instructions-screen ul {
+            margin-left: 20px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .instructions-screen li {
+            margin: 10px 0;
+        }
+
+        .round-info {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .player-name-input {
+            margin: 10px 0;
+        }
+
+        .player-name-input input {
+            width: 100%;
+        }
+
+        .answer-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: left;
+        }
+
+        .answer-display .player-name {
+            font-weight: bold;
+            color: #f5576c;
+        }
+
+        .answer-display .answer-text {
+            color: #333;
+            font-size: 1.1em;
+            margin-top: 5px;
+        }
+
+        .voting-container {
+            margin: 20px 0;
+        }
+
+        .player-vote-button {
+            display: block;
+            width: 100%;
+            margin: 8px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .player-vote-button:hover {
+            background: #f5576c;
+            color: white;
+            border-color: #f5576c;
+        }
+
+        .player-vote-button.selected {
+            background: #f5576c;
+            color: white;
+            border-color: #f5576c;
+        }
+
+        .results-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+
+        .results-table th, .results-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .results-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #f5576c;
+        }
+
+        .results-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .imposter-reveal {
+            background: #ffe6e6;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+        }
+
+        .hint-text {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        @media (max-width: 480px) {
+            .transition-screen {
+                padding: 50px 20px;
+                min-height: 250px;
+            }
+
+            .transition-screen h2 {
+                font-size: 1.3em;
+            }
+
+            .reveal-screen {
+                padding: 40px 20px;
+            }
+
+            .question-display {
+                font-size: 1.2em;
+                margin: 20px 0;
+                min-height: 80px;
+            }
+
+            .player-counter {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Instructions Screen -->
+        <div class="instructions-screen" id="instructionsScreen">
+            <h1>How to Play</h1>
+            <h2>Game Overview</h2>
+            <p>Everyone gets a question to answer. But one person gets a DIFFERENT question - they're the imposter!</p>
+
+            <h2>The Trick</h2>
+            <p>The imposter's question is designed so their answer could fit with the others. Can you spot whose answer seems... off?</p>
+
+            <h2>How to Play</h2>
+            <ol>
+                <li>Pass the device - each player sees their question privately</li>
+                <li>Everyone answers their question out loud (go around the circle)</li>
+                <li>Discuss - whose answer seems suspicious?</li>
+                <li>Vote on who you think had the different question!</li>
+            </ol>
+
+            <h2>Example</h2>
+            <p><strong>Regular players see:</strong> "How many countries have you visited?"</p>
+            <p><strong>Imposter sees:</strong> "Pick a number between 0 and 15"</p>
+            <p>Everyone says a number - but can you tell who's guessing?</p>
+
+            <h2>Winning</h2>
+            <ul>
+                <li><strong>Regular Players Win:</strong> Correctly identify the imposter</li>
+                <li><strong>Imposter Wins:</strong> Avoid detection by blending in!</li>
+            </ul>
+
+            <button onclick="closeInstructions()">Got It!</button>
+        </div>
+
+        <!-- Setup Screen -->
+        <div class="setup-screen active">
+            <h1>Question Imposter</h1>
+            <button class="small secondary" onclick="showInstructions()">How to Play</button>
+
+            <div class="input-group">
+                <label for="categorySelect">Category:</label>
+                <select id="categorySelect">
+                    <option value="random">Random Mix</option>
+                    <option value="numbers_easy">Numbers (Easy)</option>
+                    <option value="numbers_hard">Numbers (Tricky)</option>
+                    <option value="personal">Personal Questions</option>
+                    <option value="opinions">Opinions & Preferences</option>
+                    <option value="spicy">Spicy & Awkward</option>
+                    <option value="absurd">Absurd & Funny</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="playerCount">Number of Players:</label>
+                <input type="number" id="playerCount" min="3" max="20" value="5">
+            </div>
+            <div class="input-group">
+                <label for="imposterCount">Number of Imposters:</label>
+                <input type="number" id="imposterCount" min="1" max="3" value="1">
+            </div>
+            <div class="input-group">
+                <label for="roundCount">Number of Rounds:</label>
+                <input type="number" id="roundCount" min="1" max="10" value="3">
+            </div>
+            <div class="error" id="setupError"></div>
+            <button onclick="showNamesScreen()">Next: Enter Names</button>
+        </div>
+
+        <!-- Names Screen -->
+        <div class="names-screen">
+            <h1>Enter Player Names</h1>
+            <div id="playerNamesContainer"></div>
+            <div class="error" id="namesError"></div>
+            <button onclick="startGameWithNames()">Start Game</button>
+            <button class="secondary small" onclick="backToSetup()">Back</button>
+        </div>
+
+        <!-- Transition Screen -->
+        <div class="transition-screen">
+            <h2>Pass to Next Player</h2>
+            <p class="player-counter" id="playerCounter"></p>
+            <p>Tap to see your question</p>
+        </div>
+
+        <!-- Reveal Screen -->
+        <div class="reveal-screen">
+            <div class="category-badge" id="categoryBadge">Personal</div>
+            <h2 id="roleTitle">Your Question</h2>
+            <div id="questionDisplay" class="question-display"></div>
+            <p class="hint-text" id="hintText">Remember your question, then answer out loud when everyone's ready!</p>
+            <button onclick="nextPlayer()">Got it - Next Player</button>
+        </div>
+
+        <!-- Game Screen (discussion phase) -->
+        <div class="game-screen">
+            <div class="round-info" id="roundInfo">Round 1 of 3</div>
+            <h2>Time to Answer!</h2>
+            <div class="game-info">
+                <p>Go around the circle and answer your question.</p>
+                <p>Listen carefully - who seems like they got a different question?</p>
+            </div>
+            <button onclick="showVotingScreen()">Ready to Vote</button>
+            <button class="secondary small" onclick="showQuestionHint()">Show Category Hint</button>
+        </div>
+
+        <!-- Voting Screen -->
+        <div class="answer-screen">
+            <h1>Who's the Imposter?</h1>
+            <p>Select <span id="voteImposterCount">1</span> player(s)</p>
+            <div class="voting-container" id="votingContainer"></div>
+            <div class="error" id="votingError"></div>
+            <button onclick="submitVotes()">Submit Vote</button>
+            <button class="secondary small" onclick="backToGame()">Back</button>
+        </div>
+
+        <!-- Results Screen -->
+        <div class="results-screen">
+            <h1 id="resultsTitle">Results</h1>
+            <div id="resultsMessage"></div>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Their Question</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+            </table>
+            <div id="nextRoundButtons"></div>
+        </div>
+    </div>
+
+    <script>
+        // Question pairs: [realQuestion, imposterQuestion, category]
+        // The imposter question should allow answers that could plausibly fit the real question
+        const questionPairs = {
+            numbers_easy: [
+                ["How many times have you moved houses in your life?", "Pick a number between 0 and 10", "Moving"],
+                ["How many siblings do you have?", "Pick a number between 0 and 6", "Family"],
+                ["How many tattoos do you have?", "Pick a number between 0 and 5", "Tattoos"],
+                ["How many countries have you visited?", "Pick a number between 0 and 20", "Travel"],
+                ["How many pets have you had in your lifetime?", "Pick a number between 0 and 10", "Pets"],
+                ["How many bones have you broken?", "Pick a number between 0 and 5", "Injuries"],
+                ["How many languages can you speak (even a little)?", "Pick a number between 1 and 5", "Languages"],
+                ["How many hours of sleep did you get last night?", "Pick a number between 3 and 12", "Sleep"],
+                ["How many cups of coffee/tea do you drink per day?", "Pick a number between 0 and 8", "Drinks"],
+                ["How many times have you been in love?", "Pick a number between 0 and 5", "Love"],
+                ["How many concerts have you been to?", "Pick a number between 0 and 30", "Concerts"],
+                ["How many books did you read last year?", "Pick a number between 0 and 50", "Reading"],
+                ["How many pairs of shoes do you own?", "Pick a number between 2 and 30", "Shoes"],
+                ["How many times have you been to the hospital?", "Pick a number between 0 and 10", "Health"],
+                ["How many plants do you have at home?", "Pick a number between 0 and 20", "Plants"],
+            ],
+            numbers_hard: [
+                ["At what age did you have your first kiss?", "Pick an age between 10 and 22", "First Kiss"],
+                ["At what age did you learn to ride a bike?", "Pick an age between 4 and 12", "Biking"],
+                ["What year were you born?", "Pick a year between 1980 and 2010", "Birth Year"],
+                ["How old were you when you got your first phone?", "Pick an age between 8 and 18", "First Phone"],
+                ["At what age did you have your first drink?", "Pick an age between 14 and 21", "First Drink"],
+                ["How many hours per week do you work/study?", "Pick a number between 20 and 60", "Work"],
+                ["What's your shoe size? (EU)", "Pick a number between 36 and 46", "Shoe Size"],
+                ["How many Instagram followers do you have (roughly)?", "Pick a number between 100 and 2000", "Social Media"],
+                ["What temperature do you set your heating to? (Celsius)", "Pick a number between 16 and 24", "Temperature"],
+                ["How many minutes does your commute take?", "Pick a number between 5 and 60", "Commute"],
+                ["What's your lucky number?", "Pick a number between 1 and 50", "Lucky Number"],
+                ["How many exes do you have?", "Pick a number between 0 and 8", "Relationships"],
+            ],
+            personal: [
+                ["What's your most embarrassing childhood memory?", "Describe something embarrassing that could happen to a child", "Embarrassing"],
+                ["What's the worst date you've ever been on?", "Describe a bad date scenario", "Dating"],
+                ["What's a secret skill you have that most people don't know about?", "Name an unusual skill someone might have", "Skills"],
+                ["What's the worst job you've ever had?", "Name a job that would be terrible to have", "Jobs"],
+                ["What's the most trouble you got into as a kid?", "Describe something a kid might get in trouble for", "Childhood"],
+                ["What's your guilty pleasure TV show?", "Name a TV show that might be a guilty pleasure", "TV"],
+                ["What's the pettiest reason you've stopped talking to someone?", "Name a petty reason to stop talking to someone", "Petty"],
+                ["What's the longest you've gone without showering?", "How many days might someone skip showering?", "Hygiene"],
+                ["What food have you pretended to like to be polite?", "Name a food someone might pretend to like", "Food"],
+                ["What's the most useless thing you spent money on?", "Name something useless people buy", "Money"],
+            ],
+            opinions: [
+                ["What's your unpopular food opinion?", "Name a controversial food opinion", "Food Takes"],
+                ["What movie does everyone love but you hate?", "Name a popular movie someone might secretly dislike", "Movies"],
+                ["What trend do you think is stupid?", "Name a current trend that could be seen as stupid", "Trends"],
+                ["What's overrated that everyone seems to love?", "Name something people love that could be overrated", "Overrated"],
+                ["What's something you think is underrated?", "Name something that could be seen as underrated", "Underrated"],
+                ["What's a hill you're willing to die on?", "Name an opinion someone might defend strongly", "Hot Takes"],
+                ["What's the worst advice you've ever received?", "Name some bad advice someone might give", "Advice"],
+                ["What celebrity do you irrationally dislike?", "Name a celebrity someone might dislike", "Celebrities"],
+                ["What's a word you hate for no reason?", "Name a word that could be annoying", "Words"],
+                ["What's your hottest take about relationships?", "Name a controversial relationship opinion", "Relationships"],
+            ],
+            spicy: [
+                ["What's the most illegal thing you've done?", "Name something mildly illegal someone might admit to", "Illegal"],
+                ["What's a lie you've told that you've never confessed?", "Name a type of lie someone might have told", "Lies"],
+                ["What's the worst thing you've said behind someone's back?", "Name something mean someone might say behind another's back", "Gossip"],
+                ["What's a relationship red flag you've ignored?", "Name a relationship red flag", "Red Flags"],
+                ["What's something you've stolen?", "Name something small someone might have stolen", "Theft"],
+                ["What's the pettiest revenge you've taken?", "Name a petty revenge someone might do", "Revenge"],
+                ["What secret have you kept from your parents/partner?", "Name a type of secret someone might keep", "Secrets"],
+                ["What's the most cringe thing you did to impress someone?", "Name something cringe someone might do to impress a crush", "Cringe"],
+                ["What's something you pretend to be good at but aren't?", "Name something people often pretend to be good at", "Faking It"],
+                ["What's your biggest regret?", "Name a type of regret someone might have", "Regrets"],
+                ["What's the meanest thing you've done to a sibling/friend?", "Name something mean siblings might do to each other", "Mean"],
+                ["What's a boundary you've crossed that you shouldn't have?", "Name a boundary someone might cross", "Boundaries"],
+            ],
+            absurd: [
+                ["If you had to eat one food for the rest of your life, what would it be?", "Name a food someone might choose to eat forever", "Forever Food"],
+                ["What would your rapper name be?", "Make up a rapper name", "Rapper Names"],
+                ["If you were a sandwich, what sandwich would you be?", "Name a type of sandwich", "Sandwich Identity"],
+                ["What's the weirdest dream you remember?", "Describe a weird dream scenario", "Dreams"],
+                ["If animals could talk, which would be the rudest?", "Name an animal that would probably be rude", "Rude Animals"],
+                ["What conspiracy theory do you lowkey believe?", "Name a conspiracy theory someone might believe", "Conspiracies"],
+                ["If you could have dinner with any fictional character, who?", "Name a fictional character", "Fictional Dinner"],
+                ["What would be the worst superpower to have?", "Name a superpower that would suck", "Bad Superpowers"],
+                ["If you were a ghost, who would you haunt?", "Name a type of person or someone famous to haunt", "Ghost Life"],
+                ["What's the worst flavor of ice cream that could exist?", "Name a terrible ice cream flavor idea", "Bad Ice Cream"],
+                ["If you had to join a cult, what kind would it be?", "Name a type of cult that would be least bad", "Cult Life"],
+                ["What would you want your tombstone to say?", "Write a funny tombstone message", "Tombstones"],
+                ["If you were a vegetable, which would you be?", "Name a vegetable", "Veggie Identity"],
+                ["What's the funniest Wi-Fi name you can think of?", "Make up a funny Wi-Fi name", "Wi-Fi Names"],
+            ]
+        };
+
+        let currentPlayer = 0;
+        let totalPlayers = 0;
+        let imposterCount = 0;
+        let imposters = [];
+        let selectedCategory = '';
+        let currentQuestionPair = null;
+        let currentRound = 1;
+        let totalRounds = 1;
+        let playerNames = [];
+        let playerScores = [];
+        let selectedVotes = [];
+        let usedQuestions = [];
+
+        const categoryNames = {
+            'numbers_easy': 'Numbers (Easy)',
+            'numbers_hard': 'Numbers (Tricky)',
+            'personal': 'Personal Questions',
+            'opinions': 'Opinions & Preferences',
+            'spicy': 'Spicy & Awkward',
+            'absurd': 'Absurd & Funny',
+            'random': 'Random Mix'
+        };
+
+        function showInstructions() {
+            document.querySelector('.setup-screen').classList.remove('active');
+            document.getElementById('instructionsScreen').classList.add('active');
+        }
+
+        function closeInstructions() {
+            document.getElementById('instructionsScreen').classList.remove('active');
+            document.querySelector('.setup-screen').classList.add('active');
+        }
+
+        function showNamesScreen() {
+            const playerInput = document.getElementById('playerCount');
+            const imposterInput = document.getElementById('imposterCount');
+            const categoryInput = document.getElementById('categorySelect');
+            const roundInput = document.getElementById('roundCount');
+            const errorDiv = document.getElementById('setupError');
+
+            totalPlayers = parseInt(playerInput.value);
+            imposterCount = parseInt(imposterInput.value);
+            selectedCategory = categoryInput.value;
+            totalRounds = parseInt(roundInput.value);
+
+            errorDiv.textContent = '';
+
+            if (totalPlayers < 3) {
+                errorDiv.textContent = 'Need at least 3 players!';
+                return;
+            }
+
+            if (imposterCount >= totalPlayers) {
+                errorDiv.textContent = 'Imposters must be less than total players!';
+                return;
+            }
+
+            if (imposterCount < 1) {
+                errorDiv.textContent = 'Need at least 1 imposter!';
+                return;
+            }
+
+            // Generate name input fields
+            const container = document.getElementById('playerNamesContainer');
+            container.innerHTML = '';
+
+            for (let i = 0; i < totalPlayers; i++) {
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'player-name-input';
+                inputGroup.innerHTML = `
+                    <label for="playerName${i}">Player ${i + 1}:</label>
+                    <input type="text" id="playerName${i}" placeholder="Name" value="Player ${i + 1}">
+                `;
+                container.appendChild(inputGroup);
+            }
+
+            playerScores = new Array(totalPlayers).fill(0);
+
+            document.querySelector('.setup-screen').classList.remove('active');
+            document.querySelector('.names-screen').classList.add('active');
+        }
+
+        function backToSetup() {
+            document.querySelector('.names-screen').classList.remove('active');
+            document.querySelector('.setup-screen').classList.add('active');
+        }
+
+        function startGameWithNames() {
+            const errorDiv = document.getElementById('namesError');
+            errorDiv.textContent = '';
+
+            playerNames = [];
+            for (let i = 0; i < totalPlayers; i++) {
+                const name = document.getElementById(`playerName${i}`).value.trim();
+                if (name === '') {
+                    errorDiv.textContent = `Please enter a name for Player ${i + 1}`;
+                    return;
+                }
+                playerNames.push(name);
+            }
+
+            currentRound = 1;
+            usedQuestions = [];
+            startRound();
+        }
+
+        function getRandomQuestionPair() {
+            let category = selectedCategory;
+
+            // If random, pick a random category
+            if (category === 'random') {
+                const categories = Object.keys(questionPairs);
+                category = categories[Math.floor(Math.random() * categories.length)];
+            }
+
+            const pairs = questionPairs[category];
+
+            // Filter out used questions
+            const availablePairs = pairs.filter((pair, index) =>
+                !usedQuestions.includes(`${category}-${index}`)
+            );
+
+            // If all questions used, reset
+            if (availablePairs.length === 0) {
+                usedQuestions = usedQuestions.filter(q => !q.startsWith(category));
+                return getRandomQuestionPair();
+            }
+
+            const randomIndex = Math.floor(Math.random() * availablePairs.length);
+            const originalIndex = pairs.indexOf(availablePairs[randomIndex]);
+            usedQuestions.push(`${category}-${originalIndex}`);
+
+            return {
+                realQuestion: availablePairs[randomIndex][0],
+                imposterQuestion: availablePairs[randomIndex][1],
+                categoryHint: availablePairs[randomIndex][2],
+                categoryName: categoryNames[category]
+            };
+        }
+
+        function startRound() {
+            // Select question pair
+            currentQuestionPair = getRandomQuestionPair();
+
+            // Randomly select imposters
+            imposters = [];
+            const playerIndices = Array.from({length: totalPlayers}, (_, i) => i);
+
+            for (let i = playerIndices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [playerIndices[i], playerIndices[j]] = [playerIndices[j], playerIndices[i]];
+            }
+
+            imposters = playerIndices.slice(0, imposterCount);
+
+            currentPlayer = 0;
+            selectedVotes = [];
+            showTransitionScreen();
+        }
+
+        function showTransitionScreen() {
+            hideAllScreens();
+            document.querySelector('.transition-screen').classList.add('active');
+
+            const playerName = playerNames[currentPlayer];
+            document.getElementById('playerCounter').textContent = `${playerName} (${currentPlayer + 1} of ${totalPlayers})`;
+
+            document.querySelector('.transition-screen').onclick = showRevealScreen;
+        }
+
+        function hideAllScreens() {
+            document.querySelectorAll('.setup-screen, .names-screen, .transition-screen, .reveal-screen, .game-screen, .answer-screen, .results-screen, .instructions-screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+        }
+
+        function showRevealScreen() {
+            hideAllScreens();
+            document.querySelector('.reveal-screen').classList.add('active');
+            document.querySelector('.transition-screen').onclick = null;
+
+            const isImposter = imposters.includes(currentPlayer);
+            const roleTitle = document.getElementById('roleTitle');
+            const questionDisplay = document.getElementById('questionDisplay');
+            const categoryBadge = document.getElementById('categoryBadge');
+            const hintText = document.getElementById('hintText');
+
+            categoryBadge.textContent = currentQuestionPair.categoryHint;
+
+            if (isImposter) {
+                roleTitle.innerHTML = '<span class="imposter-badge">IMPOSTER</span><br>Your Question';
+                questionDisplay.textContent = currentQuestionPair.imposterQuestion;
+                hintText.textContent = "You have a DIFFERENT question! Try to blend in with your answer.";
+                questionDisplay.style.background = 'linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%)';
+            } else {
+                roleTitle.textContent = 'Your Question';
+                questionDisplay.textContent = currentQuestionPair.realQuestion;
+                hintText.textContent = "Answer honestly - but listen for who might have a different question!";
+                questionDisplay.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)';
+            }
+        }
+
+        function nextPlayer() {
+            currentPlayer++;
+
+            if (currentPlayer >= totalPlayers) {
+                showGameScreen();
+            } else {
+                showTransitionScreen();
+            }
+        }
+
+        function showGameScreen() {
+            hideAllScreens();
+            document.querySelector('.game-screen').classList.add('active');
+            document.getElementById('roundInfo').textContent = `Round ${currentRound} of ${totalRounds}`;
+        }
+
+        function showQuestionHint() {
+            alert(`Category: ${currentQuestionPair.categoryHint}\n\nThe real question is about: ${currentQuestionPair.categoryHint}`);
+        }
+
+        function showVotingScreen() {
+            hideAllScreens();
+            document.querySelector('.answer-screen').classList.add('active');
+
+            document.getElementById('voteImposterCount').textContent = imposterCount;
+
+            const container = document.getElementById('votingContainer');
+            container.innerHTML = '';
+
+            for (let i = 0; i < totalPlayers; i++) {
+                const button = document.createElement('button');
+                button.className = 'player-vote-button';
+                button.textContent = playerNames[i];
+                button.onclick = () => toggleVote(i, button);
+                container.appendChild(button);
+            }
+        }
+
+        function toggleVote(playerIndex, button) {
+            const index = selectedVotes.indexOf(playerIndex);
+            if (index > -1) {
+                selectedVotes.splice(index, 1);
+                button.classList.remove('selected');
+            } else {
+                if (selectedVotes.length < imposterCount) {
+                    selectedVotes.push(playerIndex);
+                    button.classList.add('selected');
+                } else {
+                    document.getElementById('votingError').textContent = `Select only ${imposterCount} player(s)`;
+                    setTimeout(() => {
+                        document.getElementById('votingError').textContent = '';
+                    }, 2000);
+                }
+            }
+        }
+
+        function backToGame() {
+            hideAllScreens();
+            document.querySelector('.game-screen').classList.add('active');
+        }
+
+        function submitVotes() {
+            const errorDiv = document.getElementById('votingError');
+
+            if (selectedVotes.length !== imposterCount) {
+                errorDiv.textContent = `Please select exactly ${imposterCount} player(s)`;
+                return;
+            }
+
+            errorDiv.textContent = '';
+
+            // Check if votes are correct
+            selectedVotes.sort((a, b) => a - b);
+            const sortedImposters = [...imposters].sort((a, b) => a - b);
+            const correct = JSON.stringify(selectedVotes) === JSON.stringify(sortedImposters);
+
+            // Award points
+            if (correct) {
+                for (let i = 0; i < totalPlayers; i++) {
+                    if (!imposters.includes(i)) {
+                        playerScores[i] += 10;
+                    }
+                }
+            } else {
+                imposters.forEach(imposterIndex => {
+                    playerScores[imposterIndex] += 15;
+                });
+            }
+
+            showResults(correct);
+        }
+
+        function showResults(regularPlayersWon) {
+            hideAllScreens();
+            document.querySelector('.results-screen').classList.add('active');
+
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultsMessage = document.getElementById('resultsMessage');
+
+            if (regularPlayersWon) {
+                resultsTitle.textContent = 'Imposter Caught!';
+                resultsTitle.style.color = '#28a745';
+                resultsMessage.innerHTML = `<p>The group correctly identified the imposter!</p>`;
+            } else {
+                resultsTitle.textContent = 'Imposter Wins!';
+                resultsTitle.style.color = '#e74c3c';
+                resultsMessage.innerHTML = `<p>The imposter blended in successfully!</p>`;
+            }
+
+            let imposterNames = imposters.map(i => playerNames[i]).join(', ');
+            resultsMessage.innerHTML += `
+                <div class="game-info">
+                    <p><strong>Real Question:</strong> ${currentQuestionPair.realQuestion}</p>
+                    <p><strong>Imposter Question:</strong> ${currentQuestionPair.imposterQuestion}</p>
+                    <p><strong>Imposter(s):</strong> ${imposterNames}</p>
+                </div>
+            `;
+
+            // Update results table
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = '';
+
+            for (let i = 0; i < totalPlayers; i++) {
+                const row = document.createElement('tr');
+                const wasImposter = imposters.includes(i);
+                if (wasImposter) {
+                    row.className = 'imposter-reveal';
+                }
+                row.innerHTML = `
+                    <td>${playerNames[i]} ${wasImposter ? '(Imposter)' : ''}</td>
+                    <td style="font-size: 0.9em;">${wasImposter ? currentQuestionPair.imposterQuestion : currentQuestionPair.realQuestion}</td>
+                    <td>${playerScores[i]}</td>
+                `;
+                tbody.appendChild(row);
+            }
+
+            const buttonsDiv = document.getElementById('nextRoundButtons');
+            if (currentRound < totalRounds) {
+                buttonsDiv.innerHTML = `
+                    <button onclick="nextRound()">Next Round (${currentRound + 1}/${totalRounds})</button>
+                    <button class="danger small" onclick="confirmEndGame()">End Game</button>
+                `;
+            } else {
+                buttonsDiv.innerHTML = `
+                    <button onclick="showFinalResults()">Final Results</button>
+                `;
+            }
+        }
+
+        function nextRound() {
+            currentRound++;
+            startRound();
+        }
+
+        function showFinalResults() {
+            const maxScore = Math.max(...playerScores);
+            const winners = [];
+            for (let i = 0; i < totalPlayers; i++) {
+                if (playerScores[i] === maxScore) {
+                    winners.push(i);
+                }
+            }
+
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultsMessage = document.getElementById('resultsMessage');
+
+            const winnerNames = winners.map(i => playerNames[i]).join(', ');
+            resultsTitle.textContent = 'Game Over!';
+            resultsTitle.style.color = '#f5576c';
+            resultsMessage.innerHTML = `<h2>Winner${winners.length > 1 ? 's' : ''}: ${winnerNames}</h2><p>${maxScore} points</p>`;
+
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = '';
+
+            // Sort by score
+            const sortedPlayers = playerNames.map((name, i) => ({name, score: playerScores[i], index: i}))
+                .sort((a, b) => b.score - a.score);
+
+            sortedPlayers.forEach((player, rank) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${rank === 0 ? '🏆 ' : ''}${player.name}</td>
+                    <td>-</td>
+                    <td>${player.score}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            const buttonsDiv = document.getElementById('nextRoundButtons');
+            buttonsDiv.innerHTML = `<button onclick="resetGame()">New Game</button>`;
+        }
+
+        function confirmEndGame() {
+            if (confirm('End the game and return to setup?')) {
+                resetGame();
+            }
+        }
+
+        function resetGame() {
+            currentPlayer = 0;
+            currentRound = 1;
+            playerNames = [];
+            playerScores = [];
+            selectedVotes = [];
+            usedQuestions = [];
+            hideAllScreens();
+            document.querySelector('.setup-screen').classList.add('active');
+        }
+    </script>
+</body>
+</html>
