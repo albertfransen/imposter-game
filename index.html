@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>Imposter Game</title>
@@ -638,7 +638,7 @@
                 'Kaká', 'David Beckham', 'Wayne Rooney', 'Zlatan Ibrahimović', 'Andrea Pirlo',
                 'Gianluigi Buffon', 'Paolo Maldini', 'Roberto Carlos', 'Sergio Ramos', 'Luka Modrić',
                 'Erling Haaland', 'Robert Lewandowski', 'Karim Benzema', 'Luis Suárez', 'Kevin De Bruyne',
-                'Mohamed Salah', 'Neymar Jr.', 'Frank Lampard', 'Steven Gerrard', 'Didier Drogba',
+                'Mohamed Salah', 'Claude Makélélé', 'Frank Lampard', 'Steven Gerrard', 'Didier Drogba',
                 'Samuel Eto\'o', 'Carles Puyol', 'John Terry', 'Philipp Lahm', 'Manuel Neuer',
                 'Iker Casillas', 'Virgil van Dijk', 'Harry Kane', 'Eden Hazard', 'Toni Kroos',
                 'Sergio Agüero', 'Gareth Bale', 'N\'Golo Kanté', 'Vinícius Júnior', 'Jude Bellingham',
@@ -666,6 +666,8 @@
         // Track used words and imposters for better randomness
         let usedWords = [];
         let imposterHistory = []; // Track how many times each player has been imposter
+        let isRandomCategory = false; // Track if user selected "random" category
+        let usedCategories = []; // Track used categories in random mode
 
         const categoryNames = {
             'animals': '🦁 Animals',
@@ -734,7 +736,9 @@
             // Handle custom words
             if (selectedCategory === 'custom') {
                 const customWordsText = document.getElementById('customWords').value.trim();
-                customWordsList = customWordsText.split('\n').filter(word => word.trim().length > 0);
+                // Split, trim, filter empty, and remove duplicates
+                const rawWords = customWordsText.split('\n').map(word => word.trim()).filter(word => word.length > 0);
+                customWordsList = [...new Set(rawWords)]; // Remove duplicates
 
                 if (customWordsList.length < 5) {
                     errorDiv.textContent = 'Please enter at least 5 custom words!';
@@ -745,10 +749,11 @@
                 customWordsList = [];
 
                 if (selectedCategory === 'random') {
-                    const categoryKeys = Object.keys(categories);
-                    selectedCategory = categoryKeys[Math.floor(Math.random() * categoryKeys.length)];
-                    displayCategoryName = categoryNames[selectedCategory];
+                    isRandomCategory = true;
+                    // Category will be picked each round in startRound()
+                    displayCategoryName = '🎲 Random Category';
                 } else {
+                    isRandomCategory = false;
                     displayCategoryName = categoryNames[selectedCategory];
                 }
             }
@@ -797,11 +802,33 @@
             currentRound = 1;
             // Reset tracking for new game
             usedWords = [];
+            usedCategories = [];
             imposterHistory = new Array(totalPlayers).fill(0);
             startRound();
         }
 
         function startRound() {
+            // If random category mode, pick a new category each round
+            if (isRandomCategory) {
+                const categoryKeys = Object.keys(categories);
+
+                // Filter out recently used categories
+                let availableCategories = categoryKeys.filter(cat => !usedCategories.includes(cat));
+
+                // If all categories used, reset (keep last one to avoid immediate repeat)
+                if (availableCategories.length === 0) {
+                    usedCategories = usedCategories.slice(-1);
+                    availableCategories = categoryKeys.filter(cat => !usedCategories.includes(cat));
+                }
+
+                selectedCategory = availableCategories[Math.floor(Math.random() * availableCategories.length)];
+                usedCategories.push(selectedCategory);
+                displayCategoryName = categoryNames[selectedCategory];
+
+                // Reset used words when category changes
+                usedWords = [];
+            }
+
             // Select random word from chosen category, avoiding recently used words
             let words;
             if (customWordsList.length > 0) {
@@ -943,7 +970,9 @@
 
                     if (timeRemaining <= 0) {
                         clearInterval(timerInterval);
-                        alert('Time is up! Discuss and vote for the imposter(s)!');
+                        timerInterval = null;
+                        // Auto-advance to voting screen
+                        showVotingScreen();
                     }
                 }, 1000);
             } else {
@@ -1054,7 +1083,9 @@
 
                     if (timeRemaining <= 0) {
                         clearInterval(timerInterval);
-                        alert('Time is up! Discuss and vote for the imposter(s)!');
+                        timerInterval = null;
+                        // Auto-advance to voting screen
+                        showVotingScreen();
                     }
                 }, 1000);
             }
@@ -1177,7 +1208,9 @@
             selectedVotes = [];
             // Clear randomness tracking
             usedWords = [];
+            usedCategories = [];
             imposterHistory = [];
+            isRandomCategory = false;
             document.querySelector('.game-screen').classList.remove('active');
             document.querySelector('.reveal-screen').classList.remove('active');
             document.querySelector('.voting-screen').classList.remove('active');
