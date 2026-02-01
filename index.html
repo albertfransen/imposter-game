@@ -663,6 +663,10 @@
         let selectedVotes = [];
         let timerMinutesValue = 5;
 
+        // Track used words and imposters for better randomness
+        let usedWords = [];
+        let imposterHistory = []; // Track how many times each player has been imposter
+
         const categoryNames = {
             'animals': '🦁 Animals',
             'sport': '🏃 Sport',
@@ -791,31 +795,74 @@
             }
 
             currentRound = 1;
+            // Reset tracking for new game
+            usedWords = [];
+            imposterHistory = new Array(totalPlayers).fill(0);
             startRound();
         }
 
         function startRound() {
-            // Select random word from chosen category
+            // Select random word from chosen category, avoiding recently used words
             let words;
             if (customWordsList.length > 0) {
                 words = customWordsList;
             } else {
                 words = categories[selectedCategory];
             }
-            selectedWord = words[Math.floor(Math.random() * words.length)];
 
-            // Randomly select imposters using Fisher-Yates shuffle for better randomization
+            // Filter out used words
+            let availableWords = words.filter(word => !usedWords.includes(word));
+
+            // If all words used, reset the tracking (keep last few to avoid immediate repeats)
+            if (availableWords.length === 0) {
+                const keepLast = Math.min(3, Math.floor(words.length / 2));
+                usedWords = usedWords.slice(-keepLast);
+                availableWords = words.filter(word => !usedWords.includes(word));
+            }
+
+            // Select random word from available words
+            selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+            usedWords.push(selectedWord);
+
+            // Select imposters with weighted randomness - favor players who've been imposter less often
             imposters = [];
             const playerIndices = Array.from({length: totalPlayers}, (_, i) => i);
 
-            // Shuffle the array
-            for (let i = playerIndices.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [playerIndices[i], playerIndices[j]] = [playerIndices[j], playerIndices[i]];
+            // Initialize imposter history if needed
+            if (imposterHistory.length !== totalPlayers) {
+                imposterHistory = new Array(totalPlayers).fill(0);
             }
 
-            // Take the first imposterCount players from shuffled array
-            imposters = playerIndices.slice(0, imposterCount);
+            // Create weighted selection - players with fewer imposter turns get higher weight
+            const maxHistory = Math.max(...imposterHistory, 1);
+            const weights = playerIndices.map(i => maxHistory - imposterHistory[i] + 1);
+            const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+
+            // Select imposters using weighted random selection
+            const availablePlayers = [...playerIndices];
+            while (imposters.length < imposterCount && availablePlayers.length > 0) {
+                // Recalculate weights for remaining players
+                let currentWeights = availablePlayers.map(i => maxHistory - imposterHistory[i] + 1);
+                let currentTotalWeight = currentWeights.reduce((sum, w) => sum + w, 0);
+
+                // Random weighted selection
+                let random = Math.random() * currentTotalWeight;
+                let cumulativeWeight = 0;
+                let selectedIndex = 0;
+
+                for (let i = 0; i < availablePlayers.length; i++) {
+                    cumulativeWeight += currentWeights[i];
+                    if (random <= cumulativeWeight) {
+                        selectedIndex = i;
+                        break;
+                    }
+                }
+
+                const selectedPlayer = availablePlayers[selectedIndex];
+                imposters.push(selectedPlayer);
+                imposterHistory[selectedPlayer]++;
+                availablePlayers.splice(selectedIndex, 1);
+            }
 
             // Set up timer
             if (timerMinutesValue > 0) {
@@ -1128,6 +1175,9 @@
             playerNames = [];
             playerScores = [];
             selectedVotes = [];
+            // Clear randomness tracking
+            usedWords = [];
+            imposterHistory = [];
             document.querySelector('.game-screen').classList.remove('active');
             document.querySelector('.reveal-screen').classList.remove('active');
             document.querySelector('.voting-screen').classList.remove('active');
