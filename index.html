@@ -851,7 +851,7 @@
             selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)];
             usedWords.push(selectedWord);
 
-            // Select imposters with weighted randomness - favor players who've been imposter less often
+            // Select imposters fairly - everyone must have a turn before anyone repeats
             imposters = [];
             const playerIndices = Array.from({length: totalPlayers}, (_, i) => i);
 
@@ -860,36 +860,31 @@
                 imposterHistory = new Array(totalPlayers).fill(0);
             }
 
-            // Create weighted selection - players with fewer imposter turns get higher weight
-            const maxHistory = Math.max(...imposterHistory, 1);
-            const weights = playerIndices.map(i => maxHistory - imposterHistory[i] + 1);
-            const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+            // Find the minimum imposter count - only players at the minimum are eligible
+            const minCount = Math.min(...imposterHistory);
 
-            // Select imposters using weighted random selection
-            const availablePlayers = [...playerIndices];
-            while (imposters.length < imposterCount && availablePlayers.length > 0) {
-                // Recalculate weights for remaining players
-                let currentWeights = availablePlayers.map(i => maxHistory - imposterHistory[i] + 1);
-                let currentTotalWeight = currentWeights.reduce((sum, w) => sum + w, 0);
+            // Get players who have been imposter the fewest times
+            let eligiblePlayers = playerIndices.filter(i => imposterHistory[i] === minCount);
 
-                // Random weighted selection
-                let random = Math.random() * currentTotalWeight;
-                let cumulativeWeight = 0;
-                let selectedIndex = 0;
-
-                for (let i = 0; i < availablePlayers.length; i++) {
-                    cumulativeWeight += currentWeights[i];
-                    if (random <= cumulativeWeight) {
-                        selectedIndex = i;
-                        break;
-                    }
-                }
-
-                const selectedPlayer = availablePlayers[selectedIndex];
-                imposters.push(selectedPlayer);
-                imposterHistory[selectedPlayer]++;
-                availablePlayers.splice(selectedIndex, 1);
+            // If not enough eligible players, also include next tier
+            if (eligiblePlayers.length < imposterCount) {
+                const nextMin = Math.min(...playerIndices
+                    .filter(i => imposterHistory[i] > minCount)
+                    .map(i => imposterHistory[i]));
+                const nextTier = playerIndices.filter(i => imposterHistory[i] === nextMin);
+                eligiblePlayers = eligiblePlayers.concat(nextTier);
             }
+
+            // Shuffle eligible players (Fisher-Yates) and pick imposters from them
+            for (let i = eligiblePlayers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [eligiblePlayers[i], eligiblePlayers[j]] = [eligiblePlayers[j], eligiblePlayers[i]];
+            }
+
+            imposters = eligiblePlayers.slice(0, imposterCount);
+
+            // Update history
+            imposters.forEach(i => imposterHistory[i]++);
 
             // Set up timer
             if (timerMinutesValue > 0) {
