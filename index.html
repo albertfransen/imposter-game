@@ -574,7 +574,7 @@
             <div id="nextRoundButtons"></div>
         </div>
     </div>
-    <div style="position:fixed;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.3);">v1.2</div>
+    <div style="position:fixed;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.3);">v1.3</div>
 
     <script>
         // Word lists by category
@@ -825,9 +825,6 @@
                 selectedCategory = availableCategories[Math.floor(Math.random() * availableCategories.length)];
                 usedCategories.push(selectedCategory);
                 displayCategoryName = categoryNames[selectedCategory];
-
-                // Reset used words when category changes
-                usedWords = [];
             }
 
             // Select random word from chosen category, avoiding recently used words
