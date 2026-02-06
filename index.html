@@ -663,9 +663,8 @@
         let selectedVotes = [];
         let timerMinutesValue = 5;
 
-        // Track used words and imposters for better randomness
+        // Track used words and categories for variety
         let usedWords = [];
-        let imposterHistory = []; // Track how many times each player has been imposter
         let isRandomCategory = false; // Track if user selected "random" category
         let usedCategories = []; // Track used categories in random mode
 
@@ -803,7 +802,6 @@
             // Reset tracking for new game
             usedWords = [];
             usedCategories = [];
-            imposterHistory = new Array(totalPlayers).fill(0);
             startRound();
         }
 
@@ -851,40 +849,18 @@
             selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)];
             usedWords.push(selectedWord);
 
-            // Select imposters fairly - everyone must have a turn before anyone repeats
+            // Select imposters - pure random each round (Fisher-Yates shuffle)
             imposters = [];
             const playerIndices = Array.from({length: totalPlayers}, (_, i) => i);
 
-            // Initialize imposter history if needed
-            if (imposterHistory.length !== totalPlayers) {
-                imposterHistory = new Array(totalPlayers).fill(0);
-            }
-
-            // Find the minimum imposter count - only players at the minimum are eligible
-            const minCount = Math.min(...imposterHistory);
-
-            // Get players who have been imposter the fewest times
-            let eligiblePlayers = playerIndices.filter(i => imposterHistory[i] === minCount);
-
-            // If not enough eligible players, also include next tier
-            if (eligiblePlayers.length < imposterCount) {
-                const nextMin = Math.min(...playerIndices
-                    .filter(i => imposterHistory[i] > minCount)
-                    .map(i => imposterHistory[i]));
-                const nextTier = playerIndices.filter(i => imposterHistory[i] === nextMin);
-                eligiblePlayers = eligiblePlayers.concat(nextTier);
-            }
-
-            // Shuffle eligible players (Fisher-Yates) and pick imposters from them
-            for (let i = eligiblePlayers.length - 1; i > 0; i--) {
+            // Shuffle all players randomly
+            for (let i = playerIndices.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [eligiblePlayers[i], eligiblePlayers[j]] = [eligiblePlayers[j], eligiblePlayers[i]];
+                [playerIndices[i], playerIndices[j]] = [playerIndices[j], playerIndices[i]];
             }
 
-            imposters = eligiblePlayers.slice(0, imposterCount);
-
-            // Update history
-            imposters.forEach(i => imposterHistory[i]++);
+            // Take first N as imposters
+            imposters = playerIndices.slice(0, imposterCount);
 
             // Set up timer
             if (timerMinutesValue > 0) {
@@ -1204,7 +1180,6 @@
             // Clear randomness tracking
             usedWords = [];
             usedCategories = [];
-            imposterHistory = [];
             isRandomCategory = false;
             document.querySelector('.game-screen').classList.remove('active');
             document.querySelector('.reveal-screen').classList.remove('active');
