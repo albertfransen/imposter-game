@@ -667,6 +667,7 @@
         let usedWords = [];
         let isRandomCategory = false; // Track if user selected "random" category
         let usedCategories = []; // Track used categories in random mode
+        let imposterHistory = []; // Light tracking for fairer distribution
 
         const categoryNames = {
             'animals': '🦁 Animals',
@@ -802,6 +803,7 @@
             // Reset tracking for new game
             usedWords = [];
             usedCategories = [];
+            imposterHistory = new Array(totalPlayers).fill(0);
             startRound();
         }
 
@@ -849,18 +851,41 @@
             selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)];
             usedWords.push(selectedWord);
 
-            // Select imposters - pure random each round (Fisher-Yates shuffle)
+            // Select imposters with light fairness - less frequent imposters have better odds
             imposters = [];
-            const playerIndices = Array.from({length: totalPlayers}, (_, i) => i);
+            const availablePlayers = Array.from({length: totalPlayers}, (_, i) => i);
 
-            // Shuffle all players randomly
-            for (let i = playerIndices.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [playerIndices[i], playerIndices[j]] = [playerIndices[j], playerIndices[i]];
+            // Initialize history if needed
+            if (imposterHistory.length !== totalPlayers) {
+                imposterHistory = new Array(totalPlayers).fill(0);
             }
 
-            // Take first N as imposters
-            imposters = playerIndices.slice(0, imposterCount);
+            while (imposters.length < imposterCount && availablePlayers.length > 0) {
+                // Calculate weights: fewer times as imposter = higher weight
+                // Weight = (maxCount - playerCount + 1)^2 gives quadratic advantage
+                const maxCount = Math.max(...availablePlayers.map(i => imposterHistory[i]), 0);
+                const weights = availablePlayers.map(i => {
+                    const diff = maxCount - imposterHistory[i] + 1;
+                    return diff * diff; // Quadratic: 1, 4, 9, 16... advantage
+                });
+                const totalWeight = weights.reduce((a, b) => a + b, 0);
+
+                // Weighted random pick
+                let random = Math.random() * totalWeight;
+                let selectedIdx = 0;
+                for (let i = 0; i < weights.length; i++) {
+                    random -= weights[i];
+                    if (random <= 0) {
+                        selectedIdx = i;
+                        break;
+                    }
+                }
+
+                const selectedPlayer = availablePlayers[selectedIdx];
+                imposters.push(selectedPlayer);
+                imposterHistory[selectedPlayer]++;
+                availablePlayers.splice(selectedIdx, 1);
+            }
 
             // Set up timer
             if (timerMinutesValue > 0) {
@@ -1180,6 +1205,7 @@
             // Clear randomness tracking
             usedWords = [];
             usedCategories = [];
+            imposterHistory = [];
             isRandomCategory = false;
             document.querySelector('.game-screen').classList.remove('active');
             document.querySelector('.reveal-screen').classList.remove('active');
