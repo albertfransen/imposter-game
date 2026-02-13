@@ -549,11 +549,11 @@
 
         <!-- Voting Screen -->
         <div class="voting-screen">
-            <h1>Vote for the Imposters</h1>
-            <p>Select <span id="voteImposterCount">1</span> player(s) you think are imposters</p>
+            <h1 id="votingTitle">Vote for the Imposter</h1>
+            <p><span id="currentVoterName"></span>, select <span id="voteImposterCount">1</span> player(s) you think are imposters</p>
             <div class="voting-container" id="votingContainer"></div>
             <div class="error" id="votingError"></div>
-            <button onclick="submitVotes()">Submit Votes</button>
+            <button onclick="submitVote()">Submit Vote</button>
             <button class="secondary small" onclick="backToGame()">Back to Game</button>
         </div>
 
@@ -574,7 +574,7 @@
             <div id="nextRoundButtons"></div>
         </div>
     </div>
-    <div style="position:fixed;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.3);">v1.3</div>
+    <div style="position:fixed;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.3);">v1.4</div>
 
     <script>
         // Word lists by category
@@ -662,6 +662,8 @@
         let playerNames = [];
         let playerScores = [];
         let selectedVotes = [];
+        let allPlayerVotes = []; // Store each player's votes
+        let currentVoter = 0;
         let timerMinutesValue = 5;
 
         // Track used words and categories for variety
@@ -996,16 +998,30 @@
                 timerInterval = null;
             }
 
+            // Reset voting state
+            currentVoter = 0;
+            allPlayerVotes = [];
+            selectedVotes = [];
+
+            showVoterScreen();
+        }
+
+        function showVoterScreen() {
             document.querySelector('.game-screen').classList.remove('active');
+            document.querySelector('.transition-screen').classList.remove('active');
             document.querySelector('.voting-screen').classList.add('active');
 
             document.getElementById('voteImposterCount').textContent = imposterCount;
+            document.getElementById('currentVoterName').textContent = playerNames[currentVoter];
 
-            // Create voting buttons
+            // Create voting buttons - exclude current voter (can't vote for yourself)
             const container = document.getElementById('votingContainer');
             container.innerHTML = '';
+            selectedVotes = [];
 
             for (let i = 0; i < totalPlayers; i++) {
+                if (i === currentVoter) continue; // Skip self
+
                 const button = document.createElement('button');
                 button.className = 'player-vote-button';
                 button.textContent = playerNames[i];
@@ -1032,7 +1048,7 @@
             }
         }
 
-        function submitVotes() {
+        function submitVote() {
             const errorDiv = document.getElementById('votingError');
 
             if (selectedVotes.length !== imposterCount) {
@@ -1042,10 +1058,46 @@
 
             errorDiv.textContent = '';
 
-            // Check if votes are correct
-            selectedVotes.sort((a, b) => a - b);
+            // Store this player's votes
+            allPlayerVotes.push([...selectedVotes]);
+
+            // Move to next voter
+            currentVoter++;
+
+            if (currentVoter < totalPlayers) {
+                // Show transition screen for next voter
+                document.querySelector('.voting-screen').classList.remove('active');
+                document.querySelector('.transition-screen').classList.add('active');
+                document.getElementById('playerCounter').textContent = `${playerNames[currentVoter]}'s turn to vote`;
+                document.querySelector('.transition-screen').onclick = showVoterScreen;
+            } else {
+                // All players have voted - tally results
+                tallyVotes();
+            }
+        }
+
+        function tallyVotes() {
+            // Count votes for each player
+            const voteCounts = new Array(totalPlayers).fill(0);
+            allPlayerVotes.forEach(votes => {
+                votes.forEach(playerIdx => {
+                    voteCounts[playerIdx]++;
+                });
+            });
+
+            // Find player(s) with most votes
+            const maxVotes = Math.max(...voteCounts);
+            const mostVoted = [];
+            for (let i = 0; i < totalPlayers; i++) {
+                if (voteCounts[i] === maxVotes) {
+                    mostVoted.push(i);
+                }
+            }
+
+            // Check if most voted players are the imposters
+            mostVoted.sort((a, b) => a - b);
             const sortedImposters = [...imposters].sort((a, b) => a - b);
-            const correct = JSON.stringify(selectedVotes) === JSON.stringify(sortedImposters);
+            const correct = JSON.stringify(mostVoted) === JSON.stringify(sortedImposters);
 
             // Award points
             if (correct) {
@@ -1062,7 +1114,7 @@
                 });
             }
 
-            showScoreboard(correct);
+            showScoreboard(correct, voteCounts, mostVoted);
         }
 
         function backToGame() {
@@ -1085,8 +1137,9 @@
             }
         }
 
-        function showScoreboard(regularPlayersWon) {
+        function showScoreboard(regularPlayersWon, voteCounts, mostVoted) {
             document.querySelector('.voting-screen').classList.remove('active');
+            document.querySelector('.transition-screen').classList.remove('active');
             document.querySelector('.scoreboard-screen').classList.add('active');
 
             // Show result message
@@ -1095,6 +1148,12 @@
                 resultMessage.innerHTML = `<h2 style="color: #28a745;">✓ Regular Players Win!</h2><p>The imposters were correctly identified!</p>`;
             } else {
                 resultMessage.innerHTML = `<h2 style="color: #e74c3c;">✗ Imposters Win!</h2><p>The imposters avoided detection!</p>`;
+            }
+
+            // Show voting results
+            if (voteCounts && mostVoted) {
+                const votedNames = mostVoted.map(i => `${playerNames[i]} (${voteCounts[i]} votes)`).join(', ');
+                resultMessage.innerHTML += `<p><strong>Most voted:</strong> ${votedNames}</p>`;
             }
 
             // Show imposter info
@@ -1195,11 +1254,13 @@
                 timerInterval = null;
             }
             currentPlayer = 0;
+            currentVoter = 0;
             currentRound = 1;
             customWordsList = [];
             playerNames = [];
             playerScores = [];
             selectedVotes = [];
+            allPlayerVotes = [];
             // Clear randomness tracking
             usedWords = [];
             usedCategories = [];
