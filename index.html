@@ -24,6 +24,67 @@
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
+            overflow: hidden;
+        }
+
+        /* CRAZY ANIMATIONS */
+        @keyframes wobble {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px) rotate(-5deg); }
+            75% { transform: translateX(10px) rotate(5deg); }
+        }
+
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(102, 126, 234, 0.8), 0 0 60px rgba(118, 75, 162, 0.6); }
+        }
+
+        @keyframes imposterReveal {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.5) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(5deg); }
+            75% { transform: translateY(10px) rotate(-5deg); }
         }
 
         .container {
@@ -34,12 +95,32 @@
             max-width: 500px;
             width: 100%;
             text-align: center;
+            animation: slideIn 0.5s ease-out, glowPulse 3s ease-in-out infinite;
         }
 
         h1 {
             color: #333;
             margin-bottom: 25px;
             font-size: 1.8em;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Confetti container */
+        .confetti-container {
+            position: fixed;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            animation: confetti 3s ease-out forwards;
         }
 
         @media (max-width: 480px) {
@@ -110,16 +191,24 @@
             border-radius: 12px;
             cursor: pointer;
             margin-top: 20px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             width: 100%;
             max-width: 300px;
             touch-action: manipulation;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: scale(1.05) rotate(1deg);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+            animation: wobble 0.5s ease-in-out;
         }
 
         button:active {
-            transform: scale(0.97);
+            transform: scale(0.95) rotate(-1deg);
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
 
@@ -203,13 +292,16 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            animation: popIn 0.6s ease-out, pulse 2s ease-in-out infinite;
         }
 
         .imposter-display {
-            font-size: 2.2em;
+            font-size: 2.5em;
             font-weight: bold;
             color: #e74c3c;
             margin: 30px 0;
+            animation: imposterReveal 0.8s ease-out, shake 0.5s ease-in-out 0.8s;
+            text-shadow: 0 0 20px rgba(231, 76, 60, 0.5), 0 0 40px rgba(231, 76, 60, 0.3);
         }
 
         .player-counter {
@@ -233,14 +325,18 @@
             font-weight: bold;
             color: #667eea;
             margin: 20px 0;
+            transition: all 0.3s ease;
         }
 
         .timer-display.warning {
             color: #f39c12;
+            animation: pulse 1s ease-in-out infinite;
         }
 
         .timer-display.danger {
             color: #e74c3c;
+            animation: shake 0.3s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(231, 76, 60, 0.8);
         }
 
         .game-info {
@@ -340,19 +436,31 @@
             border-radius: 10px;
             font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            animation: slideIn 0.3s ease-out backwards;
         }
+
+        .player-vote-button:nth-child(1) { animation-delay: 0s; }
+        .player-vote-button:nth-child(2) { animation-delay: 0.05s; }
+        .player-vote-button:nth-child(3) { animation-delay: 0.1s; }
+        .player-vote-button:nth-child(4) { animation-delay: 0.15s; }
+        .player-vote-button:nth-child(5) { animation-delay: 0.2s; }
 
         .player-vote-button:hover {
             background: #667eea;
             color: white;
             border-color: #667eea;
+            transform: scale(1.03) rotate(1deg);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
         .player-vote-button.selected {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-color: #667eea;
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.5);
+            animation: pulse 1s ease-in-out infinite;
         }
 
         .scoreboard-table {
@@ -574,9 +682,114 @@
             <div id="nextRoundButtons"></div>
         </div>
     </div>
-    <div style="position:fixed;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.3);">v1.4</div>
+    <div style="position:fixed;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.3);">v1.5</div>
 
     <script>
+        // SOUND EFFECTS - Web Audio API
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            switch(type) {
+                case 'click':
+                    oscillator.frequency.value = 600;
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialDecayTo(0.01, audioCtx.currentTime + 0.1);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.1);
+                    break;
+                case 'reveal':
+                    oscillator.frequency.value = 400;
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.2);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.3);
+                    break;
+                case 'imposter':
+                    oscillator.frequency.value = 150;
+                    oscillator.type = 'sawtooth';
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.5);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.6);
+                    break;
+                case 'win':
+                    [523, 659, 784, 1047].forEach((freq, i) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.frequency.value = freq;
+                        osc.type = 'sine';
+                        gain.gain.setValueAtTime(0.2, audioCtx.currentTime + i * 0.15);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.15 + 0.3);
+                        osc.start(audioCtx.currentTime + i * 0.15);
+                        osc.stop(audioCtx.currentTime + i * 0.15 + 0.3);
+                    });
+                    return;
+                case 'lose':
+                    oscillator.frequency.value = 300;
+                    oscillator.type = 'square';
+                    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.5);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.6);
+                    break;
+                case 'vote':
+                    oscillator.frequency.value = 500;
+                    oscillator.type = 'triangle';
+                    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.15);
+                    break;
+                case 'tick':
+                    oscillator.frequency.value = 1000;
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.05);
+                    break;
+            }
+        }
+
+        // CONFETTI EXPLOSION
+        function createConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff8800', '#8800ff'];
+            const shapes = ['🎉', '🎊', '✨', '⭐', '💫', '🌟'];
+            const container = document.createElement('div');
+            container.className = 'confetti-container';
+            document.body.appendChild(container);
+
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                confetti.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+                container.appendChild(confetti);
+            }
+
+            setTimeout(() => container.remove(), 4000);
+        }
+
+        // SCREEN SHAKE
+        function shakeScreen() {
+            document.body.style.animation = 'shake 0.5s ease-in-out';
+            setTimeout(() => document.body.style.animation = '', 500);
+        }
+
         // Word lists by category
         const categories = {
             animals: [
@@ -930,10 +1143,13 @@
                 roleTitle.textContent = 'You are the';
                 wordDisplay.textContent = 'IMPOSTER';
                 wordDisplay.className = 'imposter-display';
+                playSound('imposter');
+                shakeScreen();
             } else {
                 roleTitle.textContent = 'Your Word';
                 wordDisplay.textContent = selectedWord;
                 wordDisplay.className = 'word-display';
+                playSound('reveal');
             }
         }
 
@@ -987,6 +1203,9 @@
             timerElement.className = 'timer-display';
             if (timeRemaining <= 30) {
                 timerElement.classList.add('danger');
+                if (timeRemaining <= 10 && timeRemaining > 0) {
+                    playSound('tick');
+                }
             } else if (timeRemaining <= 60) {
                 timerElement.classList.add('warning');
             }
@@ -1031,6 +1250,7 @@
         }
 
         function toggleVote(playerIndex, button) {
+            playSound('vote');
             const index = selectedVotes.indexOf(playerIndex);
             if (index > -1) {
                 selectedVotes.splice(index, 1);
@@ -1039,8 +1259,10 @@
                 if (selectedVotes.length < imposterCount) {
                     selectedVotes.push(playerIndex);
                     button.classList.add('selected');
+                    button.style.animation = 'popIn 0.3s ease-out';
                 } else {
                     document.getElementById('votingError').textContent = `You can only select ${imposterCount} player(s)`;
+                    shakeScreen();
                     setTimeout(() => {
                         document.getElementById('votingError').textContent = '';
                     }, 2000);
@@ -1142,12 +1364,16 @@
             document.querySelector('.transition-screen').classList.remove('active');
             document.querySelector('.scoreboard-screen').classList.add('active');
 
-            // Show result message
+            // Show result message with sounds and effects
             const resultMessage = document.getElementById('roundResultMessage');
             if (regularPlayersWon) {
-                resultMessage.innerHTML = `<h2 style="color: #28a745;">✓ Regular Players Win!</h2><p>The imposters were correctly identified!</p>`;
+                resultMessage.innerHTML = `<h2 style="color: #28a745; animation: bounce 0.5s ease-out;">🎉 Regular Players Win! 🎉</h2><p>The imposters were correctly identified!</p>`;
+                playSound('win');
+                createConfetti();
             } else {
-                resultMessage.innerHTML = `<h2 style="color: #e74c3c;">✗ Imposters Win!</h2><p>The imposters avoided detection!</p>`;
+                resultMessage.innerHTML = `<h2 style="color: #e74c3c; animation: shake 0.5s ease-out;">😈 Imposters Win! 😈</h2><p>The imposters avoided detection!</p>`;
+                playSound('lose');
+                shakeScreen();
             }
 
             // Show voting results
